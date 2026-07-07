@@ -1,18 +1,5 @@
 [
   {
-    "id": 1,
-    "account": "メイン",
-    "name": "1号艦",
-    "rank": 145,
-    "parts": {
-      "hull": "hull_shark_mod",
-      "stern": "stern_syldra_mod",
-      "bow": "bow_unkiu_mod",
-      "bridge": "bridge_coelacanth_mod"
-    },
-    "lastRouteId": "oj"
-  },
-  {
     "id": 3,
     "account": "メイン",
     "name": "2号艦",
@@ -22,6 +9,19 @@
       "stern": "stern_shark_mod",
       "bow": "bow_shark_mod",
       "bridge": "bridge_shark_mod"
+    },
+    "lastRouteId": "oj"
+  },
+  {
+    "id": 1,
+    "account": "メイン",
+    "name": "1号艦",
+    "rank": 145,
+    "parts": {
+      "hull": "hull_shark_mod",
+      "stern": "stern_syldra_mod",
+      "bow": "bow_unkiu_mod",
+      "bridge": "bridge_coelacanth_mod"
     },
     "lastRouteId": "oj"
   },
