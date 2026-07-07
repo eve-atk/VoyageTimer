@@ -10,16 +10,22 @@ function getApiBaseUrl(): string {
   return baseUrl.replace(/\/$/, '')
 }
 
+function getCurrentAppUrl(): string {
+  return window.location.origin + window.location.pathname + window.location.search
+}
+
 export function getAuthStartUrl(): string {
   const baseUrl = getApiBaseUrl()
-  const redirectUrl = window.location.origin + window.location.pathname + window.location.search
+  const redirectUrl = getCurrentAppUrl()
   const query = new URLSearchParams({ redirect: redirectUrl })
   return `${baseUrl}/api/auth-start?${query.toString()}`
 }
 
 export function getLogoutUrl(): string {
   const baseUrl = getApiBaseUrl()
-  return baseUrl ? `${baseUrl}/api/logout` : '/api/logout'
+  const redirectUrl = getCurrentAppUrl()
+  const query = new URLSearchParams({ redirect: redirectUrl })
+  return baseUrl ? `${baseUrl}/api/logout?${query.toString()}` : `/api/logout?${query.toString()}`
 }
 
 export function getStoredAuthToken(): string | null {

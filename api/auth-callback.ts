@@ -1,4 +1,5 @@
 import { createToken, verifyToken } from './lib/auth.js'
+import { normalizeRedirectUrl } from './lib/redirect.js'
 
 type RequestLike = {
   url?: string
@@ -65,6 +66,12 @@ export default async function handler(req: RequestLike, res: ResponseLike): Prom
     return
   }
 
+  const redirectUrl = normalizeRedirectUrl(redirect)
+  if (!redirectUrl) {
+    send(res, 403, 'state の redirect が許可されていません。')
+    return
+  }
+
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: {
@@ -128,7 +135,6 @@ export default async function handler(req: RequestLike, res: ResponseLike): Prom
     60 * 15,
   )
 
-  const redirectUrl = new URL(redirect)
   redirectUrl.hash = `auth_token=${encodeURIComponent(appToken)}&auth_user=${encodeURIComponent(login)}`
 
   res.statusCode = 302

@@ -1,4 +1,5 @@
 import { createRandomState, createToken } from './lib/auth.js'
+import { getRedirectUrlFromRequest } from './lib/redirect.js'
 
 type RequestLike = {
   url?: string
@@ -17,23 +18,6 @@ function send(res: ResponseLike, statusCode: number, message: string): void {
   res.end(message)
 }
 
-function normalizeAllowedOrigin(value: string): string {
-  const unquoted = value.trim().replace(/^['\"]|['\"]$/g, '')
-
-  try {
-    return new URL(unquoted).origin
-  } catch {
-    return unquoted
-  }
-}
-
-function getAllowedFrontendOrigins(): string[] {
-  return (process.env.ALLOWED_ORIGINS ?? '')
-    .split(',')
-    .map((item) => normalizeAllowedOrigin(item))
-    .filter((item) => item.length > 0)
-}
-
 export default function handler(req: RequestLike, res: ResponseLike): void {
   const clientId = process.env.GITHUB_CLIENT_ID
   const callbackUrl = process.env.AUTH_REDIRECT_URI
@@ -44,29 +28,9 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
     return
   }
 
-  const requestUrl = new URL(req.url ?? '/', 'https://placeholder.local')
-  const redirect = requestUrl.searchParams.get('redirect')
-
-  if (!redirect) {
+  const redirectUrl = getRedirectUrlFromRequest(req)
+  if (!redirectUrl) {
     send(res, 400, 'redirect パラメータが必要です。')
-    return
-  }
-
-  let redirectUrl: URL
-  try {
-    redirectUrl = new URL(redirect)
-  } catch {
-    send(res, 400, 'redirect URL が不正です。')
-    return
-  }
-
-  const allowedOrigins = getAllowedFrontendOrigins()
-  if (allowedOrigins.length > 0 && !allowedOrigins.includes(redirectUrl.origin)) {
-    send(
-      res,
-      403,
-      `許可されていない redirect URL です。received=${redirectUrl.origin} allowed=${allowedOrigins.join(',')}`,
-    )
     return
   }
 
