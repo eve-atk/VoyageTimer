@@ -61,8 +61,11 @@ Vercel 側で以下を設定します。
 フロントエンド側では、GitHub Pages から Vercel Functions を呼ぶために以下を設定します。
 
 - VITE_UPDATE_API_BASE_URL
+- VITE_DATA_RAW_BASE_URL
 
 例: https://your-project.vercel.app
+
+`VITE_DATA_RAW_BASE_URL` には GitHub の raw URL を設定します。これにより、Pages を再ビルドしなくても、起動時に GitHub 上の最新 JSON を読み込めます。
 
 ## デプロイ構成 (GitHub Pages + Vercel Functions)
 
@@ -96,5 +99,6 @@ Vercel 側で以下を設定します。
 ## 保存方式
 
 - フロントエンドは localStorage に即時保存します。
+- 起動時は GitHub の raw JSON を読み込み、最新データを表示します。
 - その後、/api/update-data に POST して GitHub リポジトリ内の JSON 更新を試みます。
 - 現在の API は最小スタブであり、将来は認証強化と競合制御の改善が必要です。

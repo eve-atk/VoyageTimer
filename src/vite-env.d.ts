@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_UPDATE_API_BASE_URL?: string
+  readonly VITE_DATA_RAW_BASE_URL?: string
 }
 
 interface ImportMeta {

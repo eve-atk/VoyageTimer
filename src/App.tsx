@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { consumeAuthCallbackFromHash, fetchAuthSession, getAuthStartUrl, getLogoutUrl, clearAuthSession } from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
-import { loadAppData, saveAppData } from './lib/storage'
+import { loadAppData, loadLatestAppData, saveAppData } from './lib/storage'
 import type { AppData, PartMaster, PartType, RouteMaster, Ship, Voyage } from './types'
 
 type View = 'dashboard' | 'ships' | 'departures'
@@ -39,6 +39,24 @@ function App() {
         setAuthUser(session.user)
       }
     })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void loadLatestAppData().then((remoteData) => {
+      if (cancelled || !remoteData) {
+        return
+      }
+
+      setData(remoteData)
+      committedDataRef.current = remoteData
+      setShipSettingsDirty(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
