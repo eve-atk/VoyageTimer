@@ -29,17 +29,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "GITHUB_CLIENT_ID": "@github_client_id",
-    "GITHUB_CLIENT_SECRET": "@github_client_secret",
-    "AUTH_REDIRECT_URI": "@auth_redirect_uri",
-    "AUTH_JWT_SECRET": "@auth_jwt_secret",
-    "ALLOWED_ORIGINS": "@allowed_origins",
-    "ALLOWED_GITHUB_USERS": "@allowed_github_users",
-    "GITHUB_TOKEN": "@github_token",
-    "GITHUB_OWNER": "@github_owner",
-    "GITHUB_REPO": "@github_repo",
-    "GITHUB_BRANCH": "@github_branch"
-  }
+  ]
 }
