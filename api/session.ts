@@ -47,7 +47,8 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
     return
   }
 
-  const cookies = req.headers?.cookie
+  const rawCookies = req.headers?.cookie
+  const cookies = Array.isArray(rawCookies) ? rawCookies[0] : rawCookies
   const authToken = getCookieValue(cookies, 'auth_token')
 
   if (!authToken) {

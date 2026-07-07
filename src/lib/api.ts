@@ -1,4 +1,5 @@
 import type { AppData } from '../types'
+import { getStoredAuthToken } from './auth'
 
 export interface SaveResult {
   ok: boolean
@@ -15,12 +16,20 @@ function getUpdateApiUrl(): string {
 }
 
 export async function saveRemoteData(data: AppData): Promise<SaveResult> {
+  const authToken = getStoredAuthToken()
+
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    if (authToken) {
+      headers.Authorization = `Bearer ${authToken}`
+    }
+
     const response = await fetch(getUpdateApiUrl(), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       credentials: 'include',
       body: JSON.stringify(data),
     })
