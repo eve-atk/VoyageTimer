@@ -151,6 +151,8 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   ]
 
   try {
+    let updatedCount = 0
+
     for (const file of files) {
       const metadataResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}?ref=${branch}`, {
         headers: {
@@ -161,9 +163,24 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
       })
 
       let sha: string | undefined
+      let currentContent: string | undefined
       if (metadataResponse.ok) {
-        const metadata = (await metadataResponse.json()) as { sha?: string }
+        const metadata = (await metadataResponse.json()) as { sha?: string; content?: string; encoding?: string }
         sha = metadata.sha
+
+        if (metadata.encoding === 'base64' && typeof metadata.content === 'string') {
+          currentContent = Buffer.from(metadata.content.replace(/\n/g, ''), 'base64').toString('utf-8')
+        }
+      } else if (metadataResponse.status !== 404) {
+        const payload = (await metadataResponse.json().catch(() => null)) as { message?: string } | null
+        send(res, 502, {
+          message: payload?.message ?? `${file.path} の取得に失敗しました。`,
+        })
+        return
+      }
+
+      if (currentContent !== undefined && currentContent === file.content) {
+        continue
       }
 
       const updateResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`, {
@@ -189,6 +206,13 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
         })
         return
       }
+
+      updatedCount += 1
+    }
+
+    if (updatedCount === 0) {
+      send(res, 200, { message: '変更がないため、GitHub への保存は行いませんでした。' })
+      return
     }
 
     send(res, 200, { message: 'GitHub リポジトリへ保存しました。' })
