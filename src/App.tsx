@@ -93,6 +93,29 @@ function App() {
     void persist(nextData, `${target.name} を削除しました。`)
   }
 
+  function moveShip(shipId: number, direction: 'up' | 'down') {
+    const index = data.ships.findIndex((ship) => ship.id === shipId)
+    if (index < 0) {
+      return
+    }
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= data.ships.length) {
+      return
+    }
+
+    const nextShips = [...data.ships]
+    const [moved] = nextShips.splice(index, 1)
+    nextShips.splice(targetIndex, 0, moved)
+
+    const nextData = {
+      ...data,
+      ships: nextShips,
+    }
+
+    void persist(nextData, `${moved.name} の表示順を更新しました。`)
+  }
+
   function addShip(account: string, name: string, rank: number) {
     const hull = data.parts.find((part) => part.type === 'hull')?.id
     const stern = data.parts.find((part) => part.type === 'stern')?.id
@@ -261,8 +284,18 @@ function App() {
               <span>必要数を追加可能</span>
             </div>
             <ShipCreateForm ships={data.ships} onAdd={addShip} />
-            {data.ships.map((ship) => (
-              <ShipEditor key={ship.id} ship={ship} parts={data.parts} onSave={updateShip} onDelete={deleteShip} />
+            {data.ships.map((ship, index) => (
+              <ShipEditor
+                key={ship.id}
+                ship={ship}
+                parts={data.parts}
+                onSave={updateShip}
+                onDelete={deleteShip}
+                onMoveUp={() => moveShip(ship.id, 'up')}
+                onMoveDown={() => moveShip(ship.id, 'down')}
+                canMoveUp={index > 0}
+                canMoveDown={index < data.ships.length - 1}
+              />
             ))}
           </section>
         )}
@@ -295,6 +328,10 @@ interface ShipEditorProps {
   parts: PartMaster[]
   onSave: (ship: Ship) => void
   onDelete: (shipId: number) => void
+  onMoveUp: () => void
+  onMoveDown: () => void
+  canMoveUp: boolean
+  canMoveDown: boolean
 }
 
 interface ShipCreateFormProps {
@@ -358,7 +395,7 @@ function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
   )
 }
 
-function ShipEditor({ ship, parts, onSave, onDelete }: ShipEditorProps) {
+function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMoveUp, canMoveDown }: ShipEditorProps) {
   const [draft, setDraft] = useState(ship)
 
   useEffect(() => {
@@ -375,7 +412,15 @@ function ShipEditor({ ship, parts, onSave, onDelete }: ShipEditorProps) {
     >
       <div className="section-header">
         <h3>{ship.name}</h3>
-        <span>{ship.account}</span>
+        <div className="summary-row">
+          <span>{ship.account}</span>
+          <button className="secondary-button" type="button" onClick={onMoveUp} disabled={!canMoveUp}>
+            上へ
+          </button>
+          <button className="secondary-button" type="button" onClick={onMoveDown} disabled={!canMoveDown}>
+            下へ
+          </button>
+        </div>
       </div>
       <div className="form-grid">
         <label>
