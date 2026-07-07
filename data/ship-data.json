@@ -13,6 +13,19 @@
     "lastRouteId": "oj"
   },
   {
+    "id": 3,
+    "account": "メイン",
+    "name": "2号艦",
+    "rank": 145,
+    "parts": {
+      "hull": "hull_shark_mod",
+      "stern": "stern_shark_mod",
+      "bow": "bow_shark_mod",
+      "bridge": "bridge_shark_mod"
+    },
+    "lastRouteId": "oj"
+  },
+  {
     "id": 2,
     "account": "サブ",
     "name": "5号艦",
