@@ -12,14 +12,14 @@ FF14 の潜水艦運用向けに、艦船設定、出港登録、帰港時刻計
 
 ## セットアップ
 
-WSL(Ubuntu) 上での実行環境準備が可能です。Windows で開発する場合は、WSL 上で Node.js 20 以降を用意してこのプロジェクトを実行してください。
+WSL(Ubuntu) 上での実行環境準備が可能です。Windows で開発する場合は、WSL 上で Node.js 24 以降を用意してこのプロジェクトを実行してください。
 
-1. Ubuntu (WSL) を起動し、Node.js 20 系をインストール
+1. Ubuntu (WSL) を起動し、Node.js 24 系をインストール
 
 ```bash
 sudo apt update
 sudo apt install -y curl
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 sudo apt install -y nodejs
 node -v
 npm -v
