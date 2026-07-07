@@ -1,4 +1,4 @@
-import { createRandomState, createToken } from './lib/auth'
+import { createRandomState, createToken } from './lib/auth.js'
 
 type RequestLike = {
   url?: string

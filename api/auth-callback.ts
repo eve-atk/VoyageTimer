@@ -1,4 +1,4 @@
-import { createToken, verifyToken } from './lib/auth'
+import { createToken, verifyToken } from './lib/auth.js'
 
 type RequestLike = {
   url?: string

@@ -1,6 +1,6 @@
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue }
 
-import { verifyToken } from './lib/auth'
+import { verifyToken } from './lib/auth.js'
 
 declare const Buffer: {
   from(input: string, encoding?: string): { toString(encoding: string): string }
