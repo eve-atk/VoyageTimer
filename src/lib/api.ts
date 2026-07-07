@@ -1,4 +1,5 @@
 import type { AppData } from '../types'
+import { getStoredAuthToken } from './auth'
 
 export interface SaveResult {
   ok: boolean
@@ -15,11 +16,21 @@ function getUpdateApiUrl(): string {
 }
 
 export async function saveRemoteData(data: AppData): Promise<SaveResult> {
+  const authToken = getStoredAuthToken()
+
+  if (!authToken) {
+    return {
+      ok: false,
+      message: 'GitHub へ保存するには先にログインしてください。',
+    }
+  }
+
   try {
     const response = await fetch(getUpdateApiUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify(data),
     })

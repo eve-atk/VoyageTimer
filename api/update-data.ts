@@ -1,5 +1,7 @@
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue }
 
+import { verifyToken } from './lib/auth'
+
 declare const Buffer: {
   from(input: string, encoding?: string): { toString(encoding: string): string }
   concat(chunks: Uint8Array[]): { toString(encoding: string): string }
@@ -77,13 +79,34 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   if (req.method === 'OPTIONS') {
     res.statusCode = 204
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Signature')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     res.end()
     return
   }
 
   if (req.method !== 'POST') {
     send(res, 405, { message: 'POST のみ受け付けます。' })
+    return
+  }
+
+  const authSecret = process.env.AUTH_JWT_SECRET
+  if (!authSecret) {
+    send(res, 503, { message: 'AUTH_JWT_SECRET が未設定です。' })
+    return
+  }
+
+  const authHeader = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.authorization
+  const authorization = Array.isArray(authHeader) ? authHeader[0] : authHeader
+  const authToken = authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+
+  if (!authToken) {
+    send(res, 401, { message: '認証トークンが必要です。先にログインしてください。' })
+    return
+  }
+
+  const authPayload = verifyToken(authToken, authSecret)
+  if (!authPayload || authPayload.typ !== 'access') {
+    send(res, 401, { message: '認証トークンが無効または期限切れです。再ログインしてください。' })
     return
   }
 

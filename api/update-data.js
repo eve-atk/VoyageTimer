@@ -41,6 +41,7 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
+import { verifyToken } from './lib/auth';
 function isAllowedOrigin(origin, allowedOrigins) {
     if (!origin) {
         return true;
@@ -117,10 +118,10 @@ function readBody(req) {
 }
 export default function handler(req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var requestOrigin, origin, allowedOrigins, token, owner, repo, branch, rawBody, parsed, files, _i, files_1, file, metadataResponse, sha, metadata, updateResponse, payload, _a;
-        var _b, _c, _d, _e, _f, _g, _h, _j, _k;
-        return __generator(this, function (_l) {
-            switch (_l.label) {
+        var requestOrigin, origin, allowedOrigins, authSecret, authHeader, authorization, authToken, authPayload, token, owner, repo, branch, rawBody, parsed, files, _i, files_1, file, metadataResponse, sha, metadata, updateResponse, payload, _a;
+        var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        return __generator(this, function (_m) {
+            switch (_m.label) {
                 case 0:
                     requestOrigin = (_b = req.headers) === null || _b === void 0 ? void 0 : _b.origin;
                     origin = Array.isArray(requestOrigin) ? requestOrigin[0] : requestOrigin;
@@ -135,7 +136,7 @@ export default function handler(req, res) {
                     if (req.method === 'OPTIONS') {
                         res.statusCode = 204;
                         res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-                        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Signature');
+                        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
                         res.end();
                         return [2 /*return*/];
                     }
@@ -143,10 +144,27 @@ export default function handler(req, res) {
                         send(res, 405, { message: 'POST のみ受け付けます。' });
                         return [2 /*return*/];
                     }
+                    authSecret = process.env.AUTH_JWT_SECRET;
+                    if (!authSecret) {
+                        send(res, 503, { message: 'AUTH_JWT_SECRET が未設定です。' });
+                        return [2 /*return*/];
+                    }
+                    authHeader = (_d = req.headers) === null || _d === void 0 ? void 0 : _d.authorization;
+                    authorization = Array.isArray(authHeader) ? authHeader[0] : authHeader;
+                    authToken = (authorization === null || authorization === void 0 ? void 0 : authorization.startsWith('Bearer ')) ? authorization.slice(7).trim() : '';
+                    if (!authToken) {
+                        send(res, 401, { message: '認証トークンが必要です。先にログインしてください。' });
+                        return [2 /*return*/];
+                    }
+                    authPayload = verifyToken(authToken, authSecret);
+                    if (!authPayload || authPayload.typ !== 'access') {
+                        send(res, 401, { message: '認証トークンが無効または期限切れです。再ログインしてください。' });
+                        return [2 /*return*/];
+                    }
                     token = process.env.GITHUB_TOKEN;
                     owner = process.env.GITHUB_OWNER;
                     repo = process.env.GITHUB_REPO;
-                    branch = (_d = process.env.GITHUB_BRANCH) !== null && _d !== void 0 ? _d : 'main';
+                    branch = (_e = process.env.GITHUB_BRANCH) !== null && _e !== void 0 ? _e : 'main';
                     if (!token || !owner || !repo) {
                         send(res, 503, {
                             message: 'Vercel 環境変数が未設定です。GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO を設定してください。',
@@ -155,26 +173,26 @@ export default function handler(req, res) {
                     }
                     return [4 /*yield*/, readBody(req)];
                 case 1:
-                    rawBody = _l.sent();
+                    rawBody = _m.sent();
                     try {
                         parsed = JSON.parse(rawBody);
                     }
-                    catch (_m) {
+                    catch (_o) {
                         send(res, 400, { message: 'JSON の形式が不正です。' });
                         return [2 /*return*/];
                     }
                     files = [
-                        { path: 'data/ship-data.json', content: JSON.stringify((_e = parsed.ships) !== null && _e !== void 0 ? _e : [], null, 2) },
-                        { path: 'data/voyage-data.json', content: JSON.stringify((_f = parsed.voyages) !== null && _f !== void 0 ? _f : [], null, 2) },
-                        { path: 'data/part-master.json', content: JSON.stringify((_g = parsed.parts) !== null && _g !== void 0 ? _g : [], null, 2) },
-                        { path: 'data/route-master.json', content: JSON.stringify((_h = parsed.routes) !== null && _h !== void 0 ? _h : [], null, 2) },
-                        { path: 'data/rank-bonus.json', content: JSON.stringify((_j = parsed.rankBonus) !== null && _j !== void 0 ? _j : {}, null, 2) },
+                        { path: 'data/ship-data.json', content: JSON.stringify((_f = parsed.ships) !== null && _f !== void 0 ? _f : [], null, 2) },
+                        { path: 'data/voyage-data.json', content: JSON.stringify((_g = parsed.voyages) !== null && _g !== void 0 ? _g : [], null, 2) },
+                        { path: 'data/part-master.json', content: JSON.stringify((_h = parsed.parts) !== null && _h !== void 0 ? _h : [], null, 2) },
+                        { path: 'data/route-master.json', content: JSON.stringify((_j = parsed.routes) !== null && _j !== void 0 ? _j : [], null, 2) },
+                        { path: 'data/rank-bonus.json', content: JSON.stringify((_k = parsed.rankBonus) !== null && _k !== void 0 ? _k : {}, null, 2) },
                     ];
-                    _l.label = 2;
+                    _m.label = 2;
                 case 2:
-                    _l.trys.push([2, 11, , 12]);
+                    _m.trys.push([2, 11, , 12]);
                     _i = 0, files_1 = files;
-                    _l.label = 3;
+                    _m.label = 3;
                 case 3:
                     if (!(_i < files_1.length)) return [3 /*break*/, 10];
                     file = files_1[_i];
@@ -186,14 +204,14 @@ export default function handler(req, res) {
                             },
                         })];
                 case 4:
-                    metadataResponse = _l.sent();
+                    metadataResponse = _m.sent();
                     sha = void 0;
                     if (!metadataResponse.ok) return [3 /*break*/, 6];
                     return [4 /*yield*/, metadataResponse.json()];
                 case 5:
-                    metadata = (_l.sent());
+                    metadata = (_m.sent());
                     sha = metadata.sha;
-                    _l.label = 6;
+                    _m.label = 6;
                 case 6: return [4 /*yield*/, fetch("https://api.github.com/repos/".concat(owner, "/").concat(repo, "/contents/").concat(file.path), {
                         method: 'PUT',
                         headers: {
@@ -210,13 +228,13 @@ export default function handler(req, res) {
                         }),
                     })];
                 case 7:
-                    updateResponse = _l.sent();
+                    updateResponse = _m.sent();
                     if (!!updateResponse.ok) return [3 /*break*/, 9];
                     return [4 /*yield*/, updateResponse.json().catch(function () { return null; })];
                 case 8:
-                    payload = (_l.sent());
+                    payload = (_m.sent());
                     send(res, updateResponse.status === 409 ? 409 : 502, {
-                        message: (_k = payload === null || payload === void 0 ? void 0 : payload.message) !== null && _k !== void 0 ? _k : "".concat(file.path, " \u306E\u66F4\u65B0\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002"),
+                        message: (_l = payload === null || payload === void 0 ? void 0 : payload.message) !== null && _l !== void 0 ? _l : "".concat(file.path, " \u306E\u66F4\u65B0\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002"),
                     });
                     return [2 /*return*/];
                 case 9:
@@ -226,7 +244,7 @@ export default function handler(req, res) {
                     send(res, 200, { message: 'GitHub リポジトリへ保存しました。' });
                     return [3 /*break*/, 12];
                 case 11:
-                    _a = _l.sent();
+                    _a = _m.sent();
                     send(res, 500, { message: 'GitHub API 呼び出し中にエラーが発生しました。' });
                     return [3 /*break*/, 12];
                 case 12: return [2 /*return*/];

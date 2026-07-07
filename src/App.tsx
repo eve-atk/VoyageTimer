@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { initialData } from './data'
+import { clearAuthSession, consumeAuthCallbackFromHash, getAuthStartUrl, getStoredAuthUser } from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
 import { loadAppData, saveAppData } from './lib/storage'
@@ -20,6 +21,15 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('初期データを読み込みました。')
   const [saving, setSaving] = useState(false)
   const [now, setNow] = useState(() => new Date())
+  const [authUser, setAuthUser] = useState<string | null>(() => getStoredAuthUser())
+
+  useEffect(() => {
+    const result = consumeAuthCallbackFromHash()
+    if (result.changed) {
+      setAuthUser(result.user ?? null)
+      setStatusMessage(`GitHub ユーザー ${result.user ?? ''} でログインしました。`)
+    }
+  }, [])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -130,6 +140,16 @@ function App() {
     void persist(nextData, '航路マスタを更新しました。')
   }
 
+  function startLogin() {
+    window.location.href = getAuthStartUrl()
+  }
+
+  function logout() {
+    clearAuthSession()
+    setAuthUser(null)
+    setStatusMessage('ログアウトしました。')
+  }
+
   return (
     <div className="app-shell">
       <header className="hero">
@@ -142,7 +162,19 @@ function App() {
         </div>
         <div className="hero-panel">
           <div className="status-badge">{saving ? '保存中...' : statusMessage}</div>
+          <p>認証: {authUser ? `${authUser} でログイン中` : '未ログイン'}</p>
           <p>現在時刻: {now.toLocaleString('ja-JP')}</p>
+          <div className="summary-row">
+            {authUser ? (
+              <button className="secondary-button" type="button" onClick={logout}>
+                ログアウト
+              </button>
+            ) : (
+              <button className="secondary-button" type="button" onClick={startLogin}>
+                GitHubでログイン
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
