@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { consumeAuthCallbackFromHash, fetchAuthSession, getAuthStartUrl, getLogoutUrl, clearAuthSession } from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
-import { loadAppData, saveAppData } from './lib/storage'
+import { loadAppData, loadLatestAppData, saveAppData } from './lib/storage'
 import type { AppData, PartMaster, PartType, RouteMaster, Ship, Voyage } from './types'
 
 type View = 'dashboard' | 'ships' | 'departures'
@@ -19,8 +19,10 @@ function App() {
   const [view, setView] = useState<View>('dashboard')
   const [statusMessage, setStatusMessage] = useState('初期データを読み込みました。')
   const [saving, setSaving] = useState(false)
+  const [shipSettingsDirty, setShipSettingsDirty] = useState(false)
   const [now, setNow] = useState(() => new Date())
   const [authUser, setAuthUser] = useState<string | null>(null)
+  const committedDataRef = useRef<AppData>(loadAppData())
 
   useEffect(() => {
     const callbackResult = consumeAuthCallbackFromHash()
@@ -40,6 +42,24 @@ function App() {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
+
+    void loadLatestAppData().then((remoteData) => {
+      if (cancelled || !remoteData) {
+        return
+      }
+
+      setData(remoteData)
+      committedDataRef.current = remoteData
+      setShipSettingsDirty(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
       setNow(new Date())
     }, 60_000)
@@ -50,6 +70,28 @@ function App() {
   useEffect(() => {
     saveAppData(data)
   }, [data])
+
+  function discardShipSettingsChanges() {
+    setData(committedDataRef.current)
+    setShipSettingsDirty(false)
+    setStatusMessage('未保存の艦船設定変更を破棄しました。')
+  }
+
+  const hasUnsavedShipChanges = shipSettingsDirty
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedShipChanges) {
+        return
+      }
+
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedShipChanges])
 
   const voyagesByShipId = useMemo(() => {
     return new Map(data.voyages.map((voyage) => [voyage.shipId, voyage]))
@@ -77,14 +119,48 @@ function App() {
     const result = await saveRemoteData(nextData)
     setSaving(false)
     setStatusMessage(result.message)
+
+    if (result.ok) {
+      committedDataRef.current = nextData
+      setShipSettingsDirty(false)
+    }
   }
 
-  function updateShip(updatedShip: Ship) {
-    const nextData = {
-      ...data,
-      ships: data.ships.map((ship) => (ship.id === updatedShip.id ? updatedShip : ship)),
+  function confirmNavigation(nextView: View): boolean {
+    if (!hasUnsavedShipChanges || nextView === view) {
+      return true
     }
-    void persist(nextData, `${updatedShip.name} の設定を保存しました。`)
+
+    return window.confirm('艦船設定に未保存の変更があります。保存せずに移動しますか？')
+  }
+
+  function navigateToView(nextView: View) {
+    if (!confirmNavigation(nextView)) {
+      return
+    }
+
+    if (hasUnsavedShipChanges) {
+      discardShipSettingsChanges()
+    }
+
+    setView(nextView)
+  }
+
+  function updateShipDraft(updatedShip: Ship) {
+    setData((currentData) => ({
+      ...currentData,
+      ships: currentData.ships.map((ship) => (ship.id === updatedShip.id ? updatedShip : ship)),
+    }))
+    setShipSettingsDirty(true)
+  }
+
+  function saveShipSettings() {
+    if (!shipSettingsDirty) {
+      setStatusMessage('保存する変更はありません。')
+      return
+    }
+
+    void persist(data, '艦船設定を保存しました。')
   }
 
   function deleteShip(shipId: number) {
@@ -93,13 +169,13 @@ function App() {
       return
     }
 
-    const nextData = {
-      ...data,
-      ships: data.ships.filter((ship) => ship.id !== shipId),
-      voyages: data.voyages.filter((voyage) => voyage.shipId !== shipId),
-    }
-
-    void persist(nextData, `${target.name} を削除しました。`)
+    setData((currentData) => ({
+      ...currentData,
+      ships: currentData.ships.filter((ship) => ship.id !== shipId),
+      voyages: currentData.voyages.filter((voyage) => voyage.shipId !== shipId),
+    }))
+    setShipSettingsDirty(true)
+    setStatusMessage(`${target.name} を削除しました。保存してください。`)
   }
 
   function moveShip(shipId: number, direction: 'up' | 'down') {
@@ -117,12 +193,12 @@ function App() {
     const [moved] = nextShips.splice(index, 1)
     nextShips.splice(targetIndex, 0, moved)
 
-    const nextData = {
+    setData({
       ...data,
       ships: nextShips,
-    }
-
-    void persist(nextData, `${moved.name} の表示順を更新しました。`)
+    })
+    setShipSettingsDirty(true)
+    setStatusMessage(`${moved.name} の表示順を変更しました。保存してください。`)
   }
 
   function addShip(account: string, name: string, rank: number) {
@@ -152,12 +228,12 @@ function App() {
       lastRouteId: defaultRouteId,
     }
 
-    const nextData = {
-      ...data,
-      ships: [...data.ships, nextShip],
-    }
-
-    void persist(nextData, `${nextShip.name} を追加しました。`)
+    setData((currentData) => ({
+      ...currentData,
+      ships: [...currentData.ships, nextShip],
+    }))
+    setShipSettingsDirty(true)
+    setStatusMessage(`${nextShip.name} を追加しました。保存してください。`)
   }
 
   function registerDeparture(shipId: number, routeId: string, departureTime: string) {
@@ -204,10 +280,26 @@ function App() {
   }
 
   function startLogin() {
+    if (!confirmNavigation(view)) {
+      return
+    }
+
+    if (hasUnsavedShipChanges) {
+      discardShipSettingsChanges()
+    }
+
     window.location.href = getAuthStartUrl()
   }
 
   function logout() {
+    if (!confirmNavigation(view)) {
+      return
+    }
+
+    if (hasUnsavedShipChanges) {
+      discardShipSettingsChanges()
+    }
+
     clearAuthSession()
     window.location.href = getLogoutUrl()
   }
@@ -249,7 +341,7 @@ function App() {
           <button
             key={tab}
             className={view === tab ? 'tab is-active' : 'tab'}
-            onClick={() => setView(tab as View)}
+            onClick={() => navigateToView(tab as View)}
             type="button"
           >
             {label}
@@ -291,18 +383,25 @@ function App() {
               <h2>艦船設定</h2>
               <span>必要数を追加可能</span>
             </div>
+            <div className="summary-row">
+              <button className="primary-button" type="button" onClick={saveShipSettings} disabled={!hasUnsavedShipChanges}>
+                艦船設定を保存
+              </button>
+              {hasUnsavedShipChanges && <span className="helper-text">未保存の変更があります。</span>}
+            </div>
             <ShipCreateForm ships={data.ships} onAdd={addShip} />
             {data.ships.map((ship, index) => (
               <ShipEditor
                 key={ship.id}
                 ship={ship}
                 parts={data.parts}
-                onSave={updateShip}
+                onSave={saveShipSettings}
                 onDelete={deleteShip}
                 onMoveUp={() => moveShip(ship.id, 'up')}
                 onMoveDown={() => moveShip(ship.id, 'down')}
                 canMoveUp={index > 0}
                 canMoveDown={index < data.ships.length - 1}
+                onChange={updateShipDraft}
               />
             ))}
           </section>
@@ -334,12 +433,13 @@ function App() {
 interface ShipEditorProps {
   ship: Ship
   parts: PartMaster[]
-  onSave: (ship: Ship) => void
+  onSave: () => void
   onDelete: (shipId: number) => void
   onMoveUp: () => void
   onMoveDown: () => void
   canMoveUp: boolean
   canMoveDown: boolean
+  onChange: (ship: Ship) => void
 }
 
 interface ShipCreateFormProps {
@@ -403,19 +503,13 @@ function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
   )
 }
 
-function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMoveUp, canMoveDown }: ShipEditorProps) {
-  const [draft, setDraft] = useState(ship)
-
-  useEffect(() => {
-    setDraft(ship)
-  }, [ship])
-
+function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onChange }: ShipEditorProps) {
   return (
     <form
       className="editor-card"
       onSubmit={(event) => {
         event.preventDefault()
-        onSave(draft)
+        onSave()
       }}
     >
       <div className="section-header">
@@ -433,30 +527,30 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
       <div className="form-grid">
         <label>
           艦名
-          <input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} />
+          <input value={ship.name} onChange={(event) => onChange({ ...ship, name: event.target.value })} />
         </label>
         <label>
           アカウント
-          <input value={draft.account} onChange={(event) => setDraft({ ...draft, account: event.target.value })} />
+          <input value={ship.account} onChange={(event) => onChange({ ...ship, account: event.target.value })} />
         </label>
         <label>
           ランク
           <input
             type="number"
-            value={draft.rank}
-            onChange={(event) => setDraft({ ...draft, rank: Number(event.target.value) })}
+            value={ship.rank}
+            onChange={(event) => onChange({ ...ship, rank: Number(event.target.value) })}
           />
         </label>
         {(['hull', 'stern', 'bow', 'bridge'] as PartType[]).map((partType) => (
           <label key={partType}>
             {partLabels[partType]}
             <select
-              value={draft.parts[partType]}
+              value={ship.parts[partType]}
               onChange={(event) =>
-                setDraft({
-                  ...draft,
+                onChange({
+                  ...ship,
                   parts: {
-                    ...draft.parts,
+                    ...ship.parts,
                     [partType]: event.target.value,
                   },
                 })
