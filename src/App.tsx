@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { clearAuthSession, consumeAuthCallbackFromHash, getAuthStartUrl, getStoredAuthUser } from './lib/auth'
+import { fetchAuthSession, getAuthStartUrl, getLogoutUrl, clearAuthSession } from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
 import { loadAppData, saveAppData } from './lib/storage'
@@ -20,14 +20,14 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('初期データを読み込みました。')
   const [saving, setSaving] = useState(false)
   const [now, setNow] = useState(() => new Date())
-  const [authUser, setAuthUser] = useState<string | null>(() => getStoredAuthUser())
+  const [authUser, setAuthUser] = useState<string | null>(null)
 
   useEffect(() => {
-    const result = consumeAuthCallbackFromHash()
-    if (result.changed) {
-      setAuthUser(result.user ?? null)
-      setStatusMessage(`GitHub ユーザー ${result.user ?? ''} でログインしました。`)
-    }
+    fetchAuthSession().then((session) => {
+      if (session.isAuthenticated && session.user) {
+        setAuthUser(session.user)
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -200,8 +200,7 @@ function App() {
 
   function logout() {
     clearAuthSession()
-    setAuthUser(null)
-    setStatusMessage('ログアウトしました。')
+    window.location.href = getLogoutUrl()
   }
 
   return (

@@ -57,9 +57,26 @@ function setCorsHeaders(reqOrigin: string | undefined, res: ResponseLike, allowe
   return true
 }
 
+function getCookieValue(cookies: string | undefined, name: string): string | null {
+  if (!cookies) {
+    return null
+  }
+
+  const cookiePairs = cookies.split(';')
+  for (const pair of cookiePairs) {
+    const [key, value] = pair.split('=')
+    if (key.trim() === name) {
+      return decodeURIComponent(value.trim())
+    }
+  }
+
+  return null
+}
+
 function send(res: ResponseLike, statusCode: number, body: Record<string, JsonValue>) {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end(JSON.stringify(body))
 }
 
@@ -105,9 +122,9 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     return
   }
 
-  const authHeader = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.authorization
-  const authorization = Array.isArray(authHeader) ? authHeader[0] : authHeader
-  const authToken = authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+  const cookieHeader = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.cookie
+  const cookies = Array.isArray(cookieHeader) ? cookieHeader[0] : cookieHeader
+  const authToken = getCookieValue(cookies, 'auth_token')
 
   if (!authToken) {
     send(res, 401, { message: '認証トークンが必要です。先にログインしてください。' })

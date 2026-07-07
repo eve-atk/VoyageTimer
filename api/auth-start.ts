@@ -13,6 +13,7 @@ type ResponseLike = {
 function send(res: ResponseLike, statusCode: number, message: string): void {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end(message)
 }
 
@@ -89,6 +90,7 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
   if (debug) {
     res.statusCode = 200
     res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
     res.end(
       JSON.stringify(
         {
@@ -107,5 +109,6 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
 
   res.statusCode = 302
   res.setHeader('Location', authorizeUrl.toString())
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end()
 }
