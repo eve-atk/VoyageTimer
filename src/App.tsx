@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { initialData } from './data'
-import { clearAuthSession, consumeAuthCallbackFromHash, getAuthStartUrl, getStoredAuthUser } from './lib/auth'
+import { fetchAuthSession, getAuthStartUrl, getLogoutUrl, clearAuthSession } from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
 import { loadAppData, saveAppData } from './lib/storage'
 import type { AppData, PartMaster, PartType, RouteMaster, Ship, Voyage } from './types'
 
-type View = 'dashboard' | 'ships' | 'departures' | 'masters'
+type View = 'dashboard' | 'ships' | 'departures'
 
 const partLabels: Record<PartType, string> = {
   hull: '船体',
@@ -21,14 +20,14 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('初期データを読み込みました。')
   const [saving, setSaving] = useState(false)
   const [now, setNow] = useState(() => new Date())
-  const [authUser, setAuthUser] = useState<string | null>(() => getStoredAuthUser())
+  const [authUser, setAuthUser] = useState<string | null>(null)
 
   useEffect(() => {
-    const result = consumeAuthCallbackFromHash()
-    if (result.changed) {
-      setAuthUser(result.user ?? null)
-      setStatusMessage(`GitHub ユーザー ${result.user ?? ''} でログインしました。`)
-    }
+    fetchAuthSession().then((session) => {
+      if (session.isAuthenticated && session.user) {
+        setAuthUser(session.user)
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -79,6 +78,79 @@ function App() {
     void persist(nextData, `${updatedShip.name} の設定を保存しました。`)
   }
 
+  function deleteShip(shipId: number) {
+    const target = data.ships.find((ship) => ship.id === shipId)
+    if (!target) {
+      return
+    }
+
+    const nextData = {
+      ...data,
+      ships: data.ships.filter((ship) => ship.id !== shipId),
+      voyages: data.voyages.filter((voyage) => voyage.shipId !== shipId),
+    }
+
+    void persist(nextData, `${target.name} を削除しました。`)
+  }
+
+  function moveShip(shipId: number, direction: 'up' | 'down') {
+    const index = data.ships.findIndex((ship) => ship.id === shipId)
+    if (index < 0) {
+      return
+    }
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= data.ships.length) {
+      return
+    }
+
+    const nextShips = [...data.ships]
+    const [moved] = nextShips.splice(index, 1)
+    nextShips.splice(targetIndex, 0, moved)
+
+    const nextData = {
+      ...data,
+      ships: nextShips,
+    }
+
+    void persist(nextData, `${moved.name} の表示順を更新しました。`)
+  }
+
+  function addShip(account: string, name: string, rank: number) {
+    const hull = data.parts.find((part) => part.type === 'hull')?.id
+    const stern = data.parts.find((part) => part.type === 'stern')?.id
+    const bow = data.parts.find((part) => part.type === 'bow')?.id
+    const bridge = data.parts.find((part) => part.type === 'bridge')?.id
+    const defaultRouteId = data.routes[0]?.id
+
+    if (!hull || !stern || !bow || !bridge || !defaultRouteId) {
+      setStatusMessage('初期パーツまたは初期航路が不足しているため、艦船を追加できません。')
+      return
+    }
+
+    const nextId = data.ships.reduce((maxId, ship) => Math.max(maxId, ship.id), 0) + 1
+    const nextShip: Ship = {
+      id: nextId,
+      account,
+      name,
+      rank,
+      parts: {
+        hull,
+        stern,
+        bow,
+        bridge,
+      },
+      lastRouteId: defaultRouteId,
+    }
+
+    const nextData = {
+      ...data,
+      ships: [...data.ships, nextShip],
+    }
+
+    void persist(nextData, `${nextShip.name} を追加しました。`)
+  }
+
   function registerDeparture(shipId: number, routeId: string, departureTime: string) {
     const ship = data.ships.find((item) => item.id === shipId)
     const route = data.routes.find((item) => item.id === routeId)
@@ -122,32 +194,13 @@ function App() {
     void persist(nextData, `${ship.name} を ${route.name} に出港登録しました。`)
   }
 
-  function updateParts(parts: PartMaster[]) {
-    const nextData = {
-      ...data,
-      parts,
-    }
-
-    void persist(nextData, 'パーツマスタを更新しました。')
-  }
-
-  function updateRoutes(routes: RouteMaster[]) {
-    const nextData = {
-      ...data,
-      routes,
-    }
-
-    void persist(nextData, '航路マスタを更新しました。')
-  }
-
   function startLogin() {
     window.location.href = getAuthStartUrl()
   }
 
   function logout() {
     clearAuthSession()
-    setAuthUser(null)
-    setStatusMessage('ログアウトしました。')
+    window.location.href = getLogoutUrl()
   }
 
   return (
@@ -183,7 +236,6 @@ function App() {
           ['dashboard', 'ダッシュボード'],
           ['ships', '艦船設定'],
           ['departures', '出港登録'],
-          ['masters', 'マスタ管理'],
         ].map(([tab, label]) => (
           <button
             key={tab}
@@ -228,10 +280,21 @@ function App() {
           <section className="panel stack-gap">
             <div className="section-header">
               <h2>艦船設定</h2>
-              <span>最大8隻を想定</span>
+              <span>必要数を追加可能</span>
             </div>
-            {data.ships.map((ship) => (
-              <ShipEditor key={ship.id} ship={ship} parts={data.parts} onSave={updateShip} />
+            <ShipCreateForm ships={data.ships} onAdd={addShip} />
+            {data.ships.map((ship, index) => (
+              <ShipEditor
+                key={ship.id}
+                ship={ship}
+                parts={data.parts}
+                onSave={updateShip}
+                onDelete={deleteShip}
+                onMoveUp={() => moveShip(ship.id, 'up')}
+                onMoveDown={() => moveShip(ship.id, 'down')}
+                canMoveUp={index > 0}
+                canMoveDown={index < data.ships.length - 1}
+              />
             ))}
           </section>
         )}
@@ -254,15 +317,6 @@ function App() {
           </section>
         )}
 
-        {view === 'masters' && (
-          <section className="panel stack-gap">
-            <div className="section-header">
-              <h2>マスタ管理</h2>
-              <span>初期MVP向けの簡易編集</span>
-            </div>
-            <MasterEditor parts={data.parts} routes={data.routes} onSaveParts={updateParts} onSaveRoutes={updateRoutes} />
-          </section>
-        )}
       </main>
     </div>
   )
@@ -272,9 +326,75 @@ interface ShipEditorProps {
   ship: Ship
   parts: PartMaster[]
   onSave: (ship: Ship) => void
+  onDelete: (shipId: number) => void
+  onMoveUp: () => void
+  onMoveDown: () => void
+  canMoveUp: boolean
+  canMoveDown: boolean
 }
 
-function ShipEditor({ ship, parts, onSave }: ShipEditorProps) {
+interface ShipCreateFormProps {
+  ships: Ship[]
+  onAdd: (account: string, name: string, rank: number) => void
+}
+
+function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
+  const defaultAccount = ships[0]?.account ?? 'メイン'
+  const nextNumber = ships.length + 1
+  const [account, setAccount] = useState(defaultAccount)
+  const [name, setName] = useState(`${nextNumber}号艦`)
+  const [rank, setRank] = useState(1)
+
+  const accountCandidates = Array.from(new Set(ships.map((ship) => ship.account)))
+
+  return (
+    <form
+      className="editor-card"
+      onSubmit={(event) => {
+        event.preventDefault()
+        const trimmedAccount = account.trim()
+        const trimmedName = name.trim()
+
+        if (!trimmedAccount || !trimmedName) {
+          return
+        }
+
+        onAdd(trimmedAccount, trimmedName, Math.max(1, rank))
+        setName(`${nextNumber + 1}号艦`)
+        setRank(1)
+      }}
+    >
+      <div className="section-header">
+        <h3>新規艦船を追加</h3>
+        <span>新規アカウント名も入力可能</span>
+      </div>
+      <div className="form-grid">
+        <label>
+          アカウント
+          <input list="account-candidates" value={account} onChange={(event) => setAccount(event.target.value)} />
+          <datalist id="account-candidates">
+            {accountCandidates.map((item) => (
+              <option key={item} value={item} />
+            ))}
+          </datalist>
+        </label>
+        <label>
+          艦名
+          <input value={name} onChange={(event) => setName(event.target.value)} />
+        </label>
+        <label>
+          ランク
+          <input type="number" min={1} value={rank} onChange={(event) => setRank(Number(event.target.value))} />
+        </label>
+      </div>
+      <button className="primary-button" type="submit">
+        艦船を追加
+      </button>
+    </form>
+  )
+}
+
+function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMoveUp, canMoveDown }: ShipEditorProps) {
   const [draft, setDraft] = useState(ship)
 
   useEffect(() => {
@@ -291,7 +411,15 @@ function ShipEditor({ ship, parts, onSave }: ShipEditorProps) {
     >
       <div className="section-header">
         <h3>{ship.name}</h3>
-        <span>{ship.account}</span>
+        <div className="summary-row">
+          <span>{ship.account}</span>
+          <button className="secondary-button" type="button" onClick={onMoveUp} disabled={!canMoveUp}>
+            上へ
+          </button>
+          <button className="secondary-button" type="button" onClick={onMoveDown} disabled={!canMoveDown}>
+            下へ
+          </button>
+        </div>
       </div>
       <div className="form-grid">
         <label>
@@ -336,9 +464,23 @@ function ShipEditor({ ship, parts, onSave }: ShipEditorProps) {
           </label>
         ))}
       </div>
-      <button className="primary-button" type="submit">
-        艦船設定を保存
-      </button>
+      <div className="summary-row">
+        <button className="primary-button" type="submit">
+          艦船設定を保存
+        </button>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={() => {
+            const ok = window.confirm(`${ship.name} を削除します。よろしいですか？`)
+            if (ok) {
+              onDelete(ship.id)
+            }
+          }}
+        >
+          艦船を削除
+        </button>
+      </div>
     </form>
   )
 }
@@ -351,7 +493,12 @@ interface DepartureEditorProps {
 }
 
 function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEditorProps) {
-  const defaultDepartureTime = new Date().toISOString().slice(0, 16)
+  const formatDateTimeLocal = (date: Date): string => {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    return local.toISOString().slice(0, 16)
+  }
+
+  const defaultDepartureTime = formatDateTimeLocal(new Date())
   const [routeId, setRouteId] = useState(ship.lastRouteId)
   const [departureTime, setDepartureTime] = useState(defaultDepartureTime)
 
@@ -386,6 +533,12 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
           出港時刻
           <input type="datetime-local" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} />
         </label>
+        <label>
+          時刻操作
+          <button className="secondary-button" type="button" onClick={() => setDepartureTime(formatDateTimeLocal(new Date()))}>
+            現在時刻をセット
+          </button>
+        </label>
       </div>
       <p className="helper-text">
         現在の登録: {currentVoyage ? new Date(currentVoyage.arrivalTime).toLocaleString('ja-JP') : '未登録'}
@@ -394,79 +547,6 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
         出港登録
       </button>
     </form>
-  )
-}
-
-interface MasterEditorProps {
-  parts: PartMaster[]
-  routes: RouteMaster[]
-  onSaveParts: (parts: PartMaster[]) => void
-  onSaveRoutes: (routes: RouteMaster[]) => void
-}
-
-function MasterEditor({ parts, routes, onSaveParts, onSaveRoutes }: MasterEditorProps) {
-  const [partsJson, setPartsJson] = useState(JSON.stringify(parts, null, 2))
-  const [routesJson, setRoutesJson] = useState(JSON.stringify(routes, null, 2))
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    setPartsJson(JSON.stringify(parts, null, 2))
-  }, [parts])
-
-  useEffect(() => {
-    setRoutesJson(JSON.stringify(routes, null, 2))
-  }, [routes])
-
-  function submitParts() {
-    try {
-      const parsed = JSON.parse(partsJson) as PartMaster[]
-      onSaveParts(parsed)
-      setError('')
-    } catch {
-      setError('パーツマスタJSONの形式が不正です。')
-    }
-  }
-
-  function submitRoutes() {
-    try {
-      const parsed = JSON.parse(routesJson) as RouteMaster[]
-      onSaveRoutes(parsed)
-      setError('')
-    } catch {
-      setError('航路マスタJSONの形式が不正です。')
-    }
-  }
-
-  return (
-    <div className="master-grid">
-      <div className="editor-card">
-        <div className="section-header">
-          <h3>パーツマスタ</h3>
-          <button className="secondary-button" type="button" onClick={submitParts}>
-            保存
-          </button>
-        </div>
-        <textarea rows={16} value={partsJson} onChange={(event) => setPartsJson(event.target.value)} />
-      </div>
-      <div className="editor-card">
-        <div className="section-header">
-          <h3>航路マスタ</h3>
-          <button className="secondary-button" type="button" onClick={submitRoutes}>
-            保存
-          </button>
-        </div>
-        <textarea rows={16} value={routesJson} onChange={(event) => setRoutesJson(event.target.value)} />
-      </div>
-      {error ? <p className="error-text">{error}</p> : null}
-      <div className="editor-card muted-card">
-        <h3>保存構成メモ</h3>
-        <ul>
-          <li>ローカルでは即時に localStorage へ保存します。</li>
-          <li>同時に /api/update-data へPOSTし、Vercel 経由で GitHub 更新を試みます。</li>
-          <li>本番では API 側に署名検証と GitHub PAT 設定が必要です。</li>
-        </ul>
-      </div>
-    </div>
   )
 }
 

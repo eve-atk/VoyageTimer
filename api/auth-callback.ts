@@ -22,6 +22,7 @@ type GithubUser = {
 function send(res: ResponseLike, statusCode: number, message: string): void {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end(message)
 }
 
@@ -128,9 +129,13 @@ export default async function handler(req: RequestLike, res: ResponseLike): Prom
   )
 
   const redirectUrl = new URL(redirect)
-  redirectUrl.hash = `auth_token=${encodeURIComponent(appToken)}&auth_user=${encodeURIComponent(login)}`
 
   res.statusCode = 302
   res.setHeader('Location', redirectUrl.toString())
+  res.setHeader(
+    'Set-Cookie',
+    `auth_token=${encodeURIComponent(appToken)}; Path=/; Max-Age=${60 * 15}; HttpOnly; Secure; SameSite=Lax`,
+  )
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end()
 }

@@ -10,19 +10,6 @@ function getApiBaseUrl(): string {
   return baseUrl.replace(/\/$/, '')
 }
 
-export function getStoredAuthToken(): string | null {
-  return window.localStorage.getItem(TOKEN_KEY)
-}
-
-export function getStoredAuthUser(): string | null {
-  return window.localStorage.getItem(USER_KEY)
-}
-
-export function clearAuthSession(): void {
-  window.localStorage.removeItem(TOKEN_KEY)
-  window.localStorage.removeItem(USER_KEY)
-}
-
 export function getAuthStartUrl(): string {
   const baseUrl = getApiBaseUrl()
   const redirectUrl = window.location.origin + window.location.pathname + window.location.search
@@ -30,22 +17,31 @@ export function getAuthStartUrl(): string {
   return `${baseUrl}/api/auth-start?${query.toString()}`
 }
 
-export function consumeAuthCallbackFromHash(): { changed: boolean; user?: string } {
-  if (!window.location.hash) {
-    return { changed: false }
+export function getLogoutUrl(): string {
+  const baseUrl = getApiBaseUrl()
+  return baseUrl ? `${baseUrl}/api/logout` : '/api/logout'
+}
+
+export async function fetchAuthSession(): Promise<{ user?: string; isAuthenticated: boolean }> {
+  const baseUrl = getApiBaseUrl()
+  const url = baseUrl ? `${baseUrl}/api/session` : '/api/session'
+
+  try {
+    const response = await fetch(url, {
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      return { isAuthenticated: false }
+    }
+
+    return await response.json()
+  } catch {
+    return { isAuthenticated: false }
   }
+}
 
-  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
-  const authToken = hashParams.get('auth_token')
-  const authUser = hashParams.get('auth_user')
-
-  if (!authToken || !authUser) {
-    return { changed: false }
-  }
-
-  window.localStorage.setItem(TOKEN_KEY, authToken)
-  window.localStorage.setItem(USER_KEY, authUser)
-  window.history.replaceState(null, '', window.location.pathname + window.location.search)
-
-  return { changed: true, user: authUser }
+export function clearAuthSession(): void {
+  // クッキーをクリアするため、ログアウト時にサーバー側と連携することが推奨される
+  // ここではフロントエンド側のUI状態をクリアするのみ
 }

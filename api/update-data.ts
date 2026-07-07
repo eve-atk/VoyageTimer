@@ -57,9 +57,26 @@ function setCorsHeaders(reqOrigin: string | undefined, res: ResponseLike, allowe
   return true
 }
 
+function getCookieValue(cookies: string | undefined, name: string): string | null {
+  if (!cookies) {
+    return null
+  }
+
+  const cookiePairs = cookies.split(';')
+  for (const pair of cookiePairs) {
+    const [key, value] = pair.split('=')
+    if (key.trim() === name) {
+      return decodeURIComponent(value.trim())
+    }
+  }
+
+  return null
+}
+
 function send(res: ResponseLike, statusCode: number, body: Record<string, JsonValue>) {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end(JSON.stringify(body))
 }
 
@@ -105,9 +122,9 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     return
   }
 
-  const authHeader = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.authorization
-  const authorization = Array.isArray(authHeader) ? authHeader[0] : authHeader
-  const authToken = authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+  const cookieHeader = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.cookie
+  const cookies = Array.isArray(cookieHeader) ? cookieHeader[0] : cookieHeader
+  const authToken = getCookieValue(cookies, 'auth_token')
 
   if (!authToken) {
     send(res, 401, { message: '認証トークンが必要です。先にログインしてください。' })
@@ -151,6 +168,8 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   ]
 
   try {
+    let updatedCount = 0
+
     for (const file of files) {
       const metadataResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}?ref=${branch}`, {
         headers: {
@@ -161,9 +180,24 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
       })
 
       let sha: string | undefined
+      let currentContent: string | undefined
       if (metadataResponse.ok) {
-        const metadata = (await metadataResponse.json()) as { sha?: string }
+        const metadata = (await metadataResponse.json()) as { sha?: string; content?: string; encoding?: string }
         sha = metadata.sha
+
+        if (metadata.encoding === 'base64' && typeof metadata.content === 'string') {
+          currentContent = Buffer.from(metadata.content.replace(/\n/g, ''), 'base64').toString('utf-8')
+        }
+      } else if (metadataResponse.status !== 404) {
+        const payload = (await metadataResponse.json().catch(() => null)) as { message?: string } | null
+        send(res, 502, {
+          message: payload?.message ?? `${file.path} の取得に失敗しました。`,
+        })
+        return
+      }
+
+      if (currentContent !== undefined && currentContent === file.content) {
+        continue
       }
 
       const updateResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`, {
@@ -189,6 +223,13 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
         })
         return
       }
+
+      updatedCount += 1
+    }
+
+    if (updatedCount === 0) {
+      send(res, 200, { message: '変更がないため、GitHub への保存は行いませんでした。' })
+      return
     }
 
     send(res, 200, { message: 'GitHub リポジトリへ保存しました。' })

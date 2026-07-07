@@ -13,6 +13,7 @@ type ResponseLike = {
 function send(res: ResponseLike, statusCode: number, message: string): void {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end(message)
 }
 
@@ -45,7 +46,6 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
 
   const requestUrl = new URL(req.url ?? '/', 'https://placeholder.local')
   const redirect = requestUrl.searchParams.get('redirect')
-  const debug = requestUrl.searchParams.get('debug') === '1'
 
   if (!redirect) {
     send(res, 400, 'redirect パラメータが必要です。')
@@ -86,26 +86,8 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
   authorizeUrl.searchParams.set('scope', 'read:user')
   authorizeUrl.searchParams.set('state', state)
 
-  if (debug) {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'application/json; charset=utf-8')
-    res.end(
-      JSON.stringify(
-        {
-          clientId,
-          callbackUrl,
-          authorizeUrl: authorizeUrl.toString(),
-          requestedRedirect: redirectUrl.toString(),
-          allowedOrigins,
-        },
-        null,
-        2,
-      ),
-    )
-    return
-  }
-
   res.statusCode = 302
   res.setHeader('Location', authorizeUrl.toString())
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.end()
 }
