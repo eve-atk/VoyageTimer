@@ -9,11 +9,10 @@ type ResponseLike = {
   end(body?: string): void
 }
 
+import { getLogoutRedirectUrl } from './lib/redirect.js'
+
 export default function handler(req: RequestLike, res: ResponseLike): void {
-  // リファラーからリダイレクト先を取得、またはクエリパラメータから取得
-  const referer = req.headers?.referer
-  const refererUrl = Array.isArray(referer) ? referer[0] : referer
-  const redirectUrl = refererUrl ? new URL(refererUrl).origin + '/' : '/'
+  const redirectUrl = getLogoutRedirectUrl(req)
 
   res.statusCode = 302
   res.setHeader('Location', redirectUrl)
