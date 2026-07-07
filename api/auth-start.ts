@@ -16,10 +16,20 @@ function send(res: ResponseLike, statusCode: number, message: string): void {
   res.end(message)
 }
 
+function normalizeAllowedOrigin(value: string): string {
+  const unquoted = value.trim().replace(/^['\"]|['\"]$/g, '')
+
+  try {
+    return new URL(unquoted).origin
+  } catch {
+    return unquoted
+  }
+}
+
 function getAllowedFrontendOrigins(): string[] {
   return (process.env.ALLOWED_ORIGINS ?? '')
     .split(',')
-    .map((item) => item.trim())
+    .map((item) => normalizeAllowedOrigin(item))
     .filter((item) => item.length > 0)
 }
 
@@ -51,7 +61,11 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
 
   const allowedOrigins = getAllowedFrontendOrigins()
   if (allowedOrigins.length > 0 && !allowedOrigins.includes(redirectUrl.origin)) {
-    send(res, 403, '許可されていない redirect URL です。')
+    send(
+      res,
+      403,
+      `許可されていない redirect URL です。received=${redirectUrl.origin} allowed=${allowedOrigins.join(',')}`,
+    )
     return
   }
 
