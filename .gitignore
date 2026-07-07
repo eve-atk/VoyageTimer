@@ -3,3 +3,5 @@ dist/
 .vercel/
 .env
 .env.*
+api/**/*.js
+api/**/*.d.ts

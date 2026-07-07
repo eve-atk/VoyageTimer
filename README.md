@@ -52,6 +52,11 @@ Vercel 側で以下を設定します。
 - GITHUB_REPO
 - GITHUB_BRANCH
 - ALLOWED_ORIGINS
+- GITHUB_CLIENT_ID
+- GITHUB_CLIENT_SECRET
+- AUTH_REDIRECT_URI
+- AUTH_JWT_SECRET
+- ALLOWED_GITHUB_USERS
 
 フロントエンド側では、GitHub Pages から Vercel Functions を呼ぶために以下を設定します。
 
@@ -66,6 +71,27 @@ Vercel 側で以下を設定します。
 - 永続データは GitHub リポジトリ内の data/*.json に保存します。
 
 この構成では、フロントエンドから更新 API へクロスオリジンアクセスが発生するため、ALLOWED_ORIGINS に GitHub Pages の公開 URL を設定してください。
+
+## ユーザー認証付き更新フロー
+
+- `/api/auth-start` で GitHub OAuth 認証を開始します。
+- `/api/auth-callback` で GitHub ログインを検証し、短命アクセストークンを発行します。
+- フロントエンドはトークンを保持し、`/api/update-data` 呼び出し時に Authorization ヘッダーへ Bearer トークンとして付与します。
+- `ALLOWED_GITHUB_USERS` に含まれない GitHub ユーザーは更新できません。
+
+### GitHub OAuth App の設定
+
+1. GitHub の Developer settings > OAuth Apps で新規 App を作成
+2. Authorization callback URL に `AUTH_REDIRECT_URI` と同じ URL を設定
+	- 例: `https://your-vercel-project.vercel.app/api/auth-callback`
+3. 発行された Client ID / Client Secret を Vercel 環境変数へ設定
+
+### 認証テスト手順
+
+1. GitHub Pages 側を開く
+2. 画面右上の「GitHubでログイン」を押す
+3. GitHub 認証完了後、アプリに戻ってユーザー名表示を確認
+4. 保存操作を行い、`GitHub リポジトリへ保存しました。` が表示されることを確認
 
 ## 保存方式
 
