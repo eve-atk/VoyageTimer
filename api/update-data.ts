@@ -1,0 +1,127 @@
+type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue }
+
+declare const Buffer: {
+  from(input: string, encoding?: string): { toString(encoding: string): string }
+  concat(chunks: Uint8Array[]): { toString(encoding: string): string }
+  isBuffer(value: unknown): boolean
+}
+
+type RequestLike = {
+  method?: string
+  [Symbol.asyncIterator](): AsyncIterableIterator<Uint8Array | string>
+}
+
+type ResponseLike = {
+  statusCode: number
+  setHeader(name: string, value: string): void
+  end(body?: string): void
+}
+
+function send(res: ResponseLike, statusCode: number, body: Record<string, JsonValue>) {
+  res.statusCode = statusCode
+  res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.end(JSON.stringify(body))
+}
+
+async function readBody(req: RequestLike): Promise<string> {
+  const chunks: Uint8Array[] = []
+
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? new TextEncoder().encode(chunk) : chunk)
+  }
+
+  return Buffer.concat(chunks).toString('utf-8')
+}
+
+export default async function handler(req: RequestLike, res: ResponseLike) {
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Signature')
+    res.end()
+    return
+  }
+
+  if (req.method !== 'POST') {
+    send(res, 405, { message: 'POST のみ受け付けます。' })
+    return
+  }
+
+  const token = process.env.GITHUB_TOKEN
+  const owner = process.env.GITHUB_OWNER
+  const repo = process.env.GITHUB_REPO
+  const branch = process.env.GITHUB_BRANCH ?? 'main'
+
+  if (!token || !owner || !repo) {
+    send(res, 503, {
+      message: 'Vercel 環境変数が未設定です。GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO を設定してください。',
+    })
+    return
+  }
+
+  const rawBody = await readBody(req)
+
+  let parsed: JsonValue
+  try {
+    parsed = JSON.parse(rawBody) as JsonValue
+  } catch {
+    send(res, 400, { message: 'JSON の形式が不正です。' })
+    return
+  }
+
+  const files = [
+    { path: 'data/ship-data.json', content: JSON.stringify((parsed as Record<string, JsonValue>).ships ?? [], null, 2) },
+    { path: 'data/voyage-data.json', content: JSON.stringify((parsed as Record<string, JsonValue>).voyages ?? [], null, 2) },
+    { path: 'data/part-master.json', content: JSON.stringify((parsed as Record<string, JsonValue>).parts ?? [], null, 2) },
+    { path: 'data/route-master.json', content: JSON.stringify((parsed as Record<string, JsonValue>).routes ?? [], null, 2) },
+    { path: 'data/rank-bonus.json', content: JSON.stringify((parsed as Record<string, JsonValue>).rankBonus ?? {}, null, 2) },
+  ]
+
+  try {
+    for (const file of files) {
+      const metadataResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}?ref=${branch}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      })
+
+      let sha: string | undefined
+      if (metadataResponse.ok) {
+        const metadata = (await metadataResponse.json()) as { sha?: string }
+        sha = metadata.sha
+      }
+
+      const updateResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Update ${file.path} from FF14 submarine manager`,
+          content: Buffer.from(file.content, 'utf-8').toString('base64'),
+          sha,
+          branch,
+        }),
+      })
+
+      if (!updateResponse.ok) {
+        const payload = (await updateResponse.json().catch(() => null)) as { message?: string } | null
+        send(res, updateResponse.status === 409 ? 409 : 502, {
+          message: payload?.message ?? `${file.path} の更新に失敗しました。`,
+        })
+        return
+      }
+    }
+
+    send(res, 200, { message: 'GitHub リポジトリへ保存しました。' })
+  } catch {
+    send(res, 500, { message: 'GitHub API 呼び出し中にエラーが発生しました。' })
+  }
+}

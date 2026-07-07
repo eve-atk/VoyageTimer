@@ -1,0 +1,9 @@
+[
+  {
+    "shipId": 1,
+    "routeId": "oj",
+    "departureTime": "2026-07-07T20:00:00+09:00",
+    "arrivalTime": "2026-07-08T20:43:00+09:00",
+    "notified": false
+  }
+]

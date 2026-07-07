@@ -1,0 +1,222 @@
+[
+  {
+    "id": "hull_shark_mod",
+    "type": "hull",
+    "name": "シャーク改級艦体",
+    "requiredRank": 50,
+    "surveillance": -5,
+    "retrieval": 40,
+    "speed": 25,
+    "range": 45,
+    "favor": 35
+  },
+  {
+    "id": "hull_unkiu_mod",
+    "type": "hull",
+    "name": "ウンキウ改級艦体",
+    "requiredRank": 50,
+    "surveillance": 20,
+    "retrieval": 15,
+    "speed": 5,
+    "range": 65,
+    "favor": 25
+  },
+  {
+    "id": "hull_whale_mod",
+    "type": "hull",
+    "name": "ホエール改級艦体",
+    "requiredRank": 50,
+    "surveillance": -10,
+    "retrieval": 55,
+    "speed": 40,
+    "range": 20,
+    "favor": 30
+  },
+  {
+    "id": "hull_coelacanth_mod",
+    "type": "hull",
+    "name": "シーラカンス改級艦体",
+    "requiredRank": 50,
+    "surveillance": 40,
+    "retrieval": -5,
+    "speed": 30,
+    "range": 40,
+    "favor": 30
+  },
+  {
+    "id": "hull_syldra_mod",
+    "type": "hull",
+    "name": "シルドラ改級艦体",
+    "requiredRank": 50,
+    "surveillance": 10,
+    "retrieval": 80,
+    "speed": 30,
+    "range": -15,
+    "favor": 10
+  },
+  {
+    "id": "stern_shark_mod",
+    "type": "stern",
+    "name": "シャーク改級艦尾",
+    "requiredRank": 50,
+    "surveillance": -25,
+    "retrieval": 25,
+    "speed": 70,
+    "range": 35,
+    "favor": 25
+  },
+  {
+    "id": "stern_unkiu_mod",
+    "type": "stern",
+    "name": "ウンキウ改級艦尾",
+    "requiredRank": 50,
+    "surveillance": 20,
+    "retrieval": 5,
+    "speed": 35,
+    "range": 45,
+    "favor": 35
+  },
+  {
+    "id": "stern_whale_mod",
+    "type": "stern",
+    "name": "ホエール改級艦尾",
+    "requiredRank": 50,
+    "surveillance": 20,
+    "retrieval": 20,
+    "speed": 5,
+    "range": 60,
+    "favor": 20
+  },
+  {
+    "id": "stern_coelacanth_mod",
+    "type": "stern",
+    "name": "シーラカンス改級艦尾",
+    "requiredRank": 50,
+    "surveillance": 10,
+    "retrieval": 25,
+    "speed": 40,
+    "range": 30,
+    "favor": 30
+  },
+  {
+    "id": "stern_syldra_mod",
+    "type": "stern",
+    "name": "シルドラ改級艦尾",
+    "requiredRank": 50,
+    "surveillance": 20,
+    "retrieval": 60,
+    "speed": 35,
+    "range": -10,
+    "favor": 10
+  },
+  {
+    "id": "bow_shark_mod",
+    "type": "bow",
+    "name": "シャーク改級艦首",
+    "requiredRank": 50,
+    "surveillance": 55,
+    "retrieval": 50,
+    "speed": 15,
+    "range": -15,
+    "favor": 25
+  },
+  {
+    "id": "bow_unkiu_mod",
+    "type": "bow",
+    "name": "ウンキウ改級艦首",
+    "requiredRank": 50,
+    "surveillance": 65,
+    "retrieval": 25,
+    "speed": 25,
+    "range": -10,
+    "favor": 20
+  },
+  {
+    "id": "bow_whale_mod",
+    "type": "bow",
+    "name": "ホエール改級艦首",
+    "requiredRank": 50,
+    "surveillance": 25,
+    "retrieval": 65,
+    "speed": -10,
+    "range": 25,
+    "favor": 25
+  },
+  {
+    "id": "bow_coelacanth_mod",
+    "type": "bow",
+    "name": "シーラカンス改級艦首",
+    "requiredRank": 50,
+    "surveillance": 70,
+    "retrieval": 15,
+    "speed": -10,
+    "range": 30,
+    "favor": 5
+  },
+  {
+    "id": "bow_syldra_mod",
+    "type": "bow",
+    "name": "シルドラ改級艦首",
+    "requiredRank": 50,
+    "surveillance": 45,
+    "retrieval": 30,
+    "speed": -10,
+    "range": 40,
+    "favor": 40
+  },
+  {
+    "id": "bridge_shark_mod",
+    "type": "bridge",
+    "name": "シャーク改級艦橋",
+    "requiredRank": 50,
+    "surveillance": 25,
+    "retrieval": 25,
+    "speed": 30,
+    "range": 25,
+    "favor": 35
+  },
+  {
+    "id": "bridge_unkiu_mod",
+    "type": "bridge",
+    "name": "ウンキウ改級艦橋",
+    "requiredRank": 50,
+    "surveillance": 30,
+    "retrieval": 10,
+    "speed": 30,
+    "range": 35,
+    "favor": 40
+  },
+  {
+    "id": "bridge_whale_mod",
+    "type": "bridge",
+    "name": "ホエール改級艦橋",
+    "requiredRank": 50,
+    "surveillance": 0,
+    "retrieval": 30,
+    "speed": 25,
+    "range": 50,
+    "favor": 45
+  },
+  {
+    "id": "bridge_coelacanth_mod",
+    "type": "bridge",
+    "name": "シーラカンス改級艦橋",
+    "requiredRank": 50,
+    "surveillance": 60,
+    "retrieval": 20,
+    "speed": 35,
+    "range": -10,
+    "favor": 55
+  },
+  {
+    "id": "bridge_syldra_mod",
+    "type": "bridge",
+    "name": "シルドラ改級艦橋",
+    "requiredRank": 50,
+    "surveillance": 60,
+    "retrieval": 20,
+    "speed": -5,
+    "range": 30,
+    "favor": 60
+  }
+]
