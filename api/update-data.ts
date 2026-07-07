@@ -13,14 +13,41 @@ type RequestLike = {
 
 type ResponseLike = {
   statusCode: number
+  getHeader?(name: string): string | number | string[] | undefined
   setHeader(name: string, value: string): void
   end(body?: string): void
+}
+
+function isAllowedOrigin(origin: string | undefined, allowedOrigins: string[]): boolean {
+  if (!origin) {
+    return true
+  }
+
+  if (allowedOrigins.length === 0) {
+    return true
+  }
+
+  return allowedOrigins.includes(origin)
+}
+
+function setCorsHeaders(reqOrigin: string | undefined, res: ResponseLike, allowedOrigins: string[]): boolean {
+  if (!isAllowedOrigin(reqOrigin, allowedOrigins)) {
+    return false
+  }
+
+  if (reqOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', reqOrigin)
+    res.setHeader('Vary', 'Origin')
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+  }
+
+  return true
 }
 
 function send(res: ResponseLike, statusCode: number, body: Record<string, JsonValue>) {
   res.statusCode = statusCode
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
-  res.setHeader('Access-Control-Allow-Origin', '*')
   res.end(JSON.stringify(body))
 }
 
@@ -35,9 +62,20 @@ async function readBody(req: RequestLike): Promise<string> {
 }
 
 export default async function handler(req: RequestLike, res: ResponseLike) {
+  const requestOrigin = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.origin
+  const origin = Array.isArray(requestOrigin) ? requestOrigin[0] : requestOrigin
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0)
+
+  if (!setCorsHeaders(origin, res, allowedOrigins)) {
+    send(res, 403, { message: 'このオリジンからのアクセスは許可されていません。' })
+    return
+  }
+
   if (req.method === 'OPTIONS') {
     res.statusCode = 204
-    res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Signature')
     res.end()

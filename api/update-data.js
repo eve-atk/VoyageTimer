@@ -41,10 +41,31 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
+function isAllowedOrigin(origin, allowedOrigins) {
+    if (!origin) {
+        return true;
+    }
+    if (allowedOrigins.length === 0) {
+        return true;
+    }
+    return allowedOrigins.includes(origin);
+}
+function setCorsHeaders(reqOrigin, res, allowedOrigins) {
+    if (!isAllowedOrigin(reqOrigin, allowedOrigins)) {
+        return false;
+    }
+    if (reqOrigin) {
+        res.setHeader('Access-Control-Allow-Origin', reqOrigin);
+        res.setHeader('Vary', 'Origin');
+    }
+    else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    return true;
+}
 function send(res, statusCode, body) {
     res.statusCode = statusCode;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('Access-Control-Allow-Origin', '*');
     res.end(JSON.stringify(body));
 }
 function readBody(req) {
@@ -96,14 +117,23 @@ function readBody(req) {
 }
 export default function handler(req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var token, owner, repo, branch, rawBody, parsed, files, _i, files_1, file, metadataResponse, sha, metadata, updateResponse, payload, _a;
-        var _b, _c, _d, _e, _f, _g, _h;
-        return __generator(this, function (_j) {
-            switch (_j.label) {
+        var requestOrigin, origin, allowedOrigins, token, owner, repo, branch, rawBody, parsed, files, _i, files_1, file, metadataResponse, sha, metadata, updateResponse, payload, _a;
+        var _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        return __generator(this, function (_l) {
+            switch (_l.label) {
                 case 0:
+                    requestOrigin = (_b = req.headers) === null || _b === void 0 ? void 0 : _b.origin;
+                    origin = Array.isArray(requestOrigin) ? requestOrigin[0] : requestOrigin;
+                    allowedOrigins = ((_c = process.env.ALLOWED_ORIGINS) !== null && _c !== void 0 ? _c : '')
+                        .split(',')
+                        .map(function (item) { return item.trim(); })
+                        .filter(function (item) { return item.length > 0; });
+                    if (!setCorsHeaders(origin, res, allowedOrigins)) {
+                        send(res, 403, { message: 'このオリジンからのアクセスは許可されていません。' });
+                        return [2 /*return*/];
+                    }
                     if (req.method === 'OPTIONS') {
                         res.statusCode = 204;
-                        res.setHeader('Access-Control-Allow-Origin', '*');
                         res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
                         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Signature');
                         res.end();
@@ -116,7 +146,7 @@ export default function handler(req, res) {
                     token = process.env.GITHUB_TOKEN;
                     owner = process.env.GITHUB_OWNER;
                     repo = process.env.GITHUB_REPO;
-                    branch = (_b = process.env.GITHUB_BRANCH) !== null && _b !== void 0 ? _b : 'main';
+                    branch = (_d = process.env.GITHUB_BRANCH) !== null && _d !== void 0 ? _d : 'main';
                     if (!token || !owner || !repo) {
                         send(res, 503, {
                             message: 'Vercel 環境変数が未設定です。GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO を設定してください。',
@@ -125,26 +155,26 @@ export default function handler(req, res) {
                     }
                     return [4 /*yield*/, readBody(req)];
                 case 1:
-                    rawBody = _j.sent();
+                    rawBody = _l.sent();
                     try {
                         parsed = JSON.parse(rawBody);
                     }
-                    catch (_k) {
+                    catch (_m) {
                         send(res, 400, { message: 'JSON の形式が不正です。' });
                         return [2 /*return*/];
                     }
                     files = [
-                        { path: 'data/ship-data.json', content: JSON.stringify((_c = parsed.ships) !== null && _c !== void 0 ? _c : [], null, 2) },
-                        { path: 'data/voyage-data.json', content: JSON.stringify((_d = parsed.voyages) !== null && _d !== void 0 ? _d : [], null, 2) },
-                        { path: 'data/part-master.json', content: JSON.stringify((_e = parsed.parts) !== null && _e !== void 0 ? _e : [], null, 2) },
-                        { path: 'data/route-master.json', content: JSON.stringify((_f = parsed.routes) !== null && _f !== void 0 ? _f : [], null, 2) },
-                        { path: 'data/rank-bonus.json', content: JSON.stringify((_g = parsed.rankBonus) !== null && _g !== void 0 ? _g : {}, null, 2) },
+                        { path: 'data/ship-data.json', content: JSON.stringify((_e = parsed.ships) !== null && _e !== void 0 ? _e : [], null, 2) },
+                        { path: 'data/voyage-data.json', content: JSON.stringify((_f = parsed.voyages) !== null && _f !== void 0 ? _f : [], null, 2) },
+                        { path: 'data/part-master.json', content: JSON.stringify((_g = parsed.parts) !== null && _g !== void 0 ? _g : [], null, 2) },
+                        { path: 'data/route-master.json', content: JSON.stringify((_h = parsed.routes) !== null && _h !== void 0 ? _h : [], null, 2) },
+                        { path: 'data/rank-bonus.json', content: JSON.stringify((_j = parsed.rankBonus) !== null && _j !== void 0 ? _j : {}, null, 2) },
                     ];
-                    _j.label = 2;
+                    _l.label = 2;
                 case 2:
-                    _j.trys.push([2, 11, , 12]);
+                    _l.trys.push([2, 11, , 12]);
                     _i = 0, files_1 = files;
-                    _j.label = 3;
+                    _l.label = 3;
                 case 3:
                     if (!(_i < files_1.length)) return [3 /*break*/, 10];
                     file = files_1[_i];
@@ -156,14 +186,14 @@ export default function handler(req, res) {
                             },
                         })];
                 case 4:
-                    metadataResponse = _j.sent();
+                    metadataResponse = _l.sent();
                     sha = void 0;
                     if (!metadataResponse.ok) return [3 /*break*/, 6];
                     return [4 /*yield*/, metadataResponse.json()];
                 case 5:
-                    metadata = (_j.sent());
+                    metadata = (_l.sent());
                     sha = metadata.sha;
-                    _j.label = 6;
+                    _l.label = 6;
                 case 6: return [4 /*yield*/, fetch("https://api.github.com/repos/".concat(owner, "/").concat(repo, "/contents/").concat(file.path), {
                         method: 'PUT',
                         headers: {
@@ -180,13 +210,13 @@ export default function handler(req, res) {
                         }),
                     })];
                 case 7:
-                    updateResponse = _j.sent();
+                    updateResponse = _l.sent();
                     if (!!updateResponse.ok) return [3 /*break*/, 9];
                     return [4 /*yield*/, updateResponse.json().catch(function () { return null; })];
                 case 8:
-                    payload = (_j.sent());
+                    payload = (_l.sent());
                     send(res, updateResponse.status === 409 ? 409 : 502, {
-                        message: (_h = payload === null || payload === void 0 ? void 0 : payload.message) !== null && _h !== void 0 ? _h : "".concat(file.path, " \u306E\u66F4\u65B0\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002"),
+                        message: (_k = payload === null || payload === void 0 ? void 0 : payload.message) !== null && _k !== void 0 ? _k : "".concat(file.path, " \u306E\u66F4\u65B0\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002"),
                     });
                     return [2 /*return*/];
                 case 9:
@@ -196,7 +226,7 @@ export default function handler(req, res) {
                     send(res, 200, { message: 'GitHub リポジトリへ保存しました。' });
                     return [3 /*break*/, 12];
                 case 11:
-                    _a = _j.sent();
+                    _a = _l.sent();
                     send(res, 500, { message: 'GitHub API 呼び出し中にエラーが発生しました。' });
                     return [3 /*break*/, 12];
                 case 12: return [2 /*return*/];

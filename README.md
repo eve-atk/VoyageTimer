@@ -51,6 +51,21 @@ Vercel 側で以下を設定します。
 - GITHUB_OWNER
 - GITHUB_REPO
 - GITHUB_BRANCH
+- ALLOWED_ORIGINS
+
+フロントエンド側では、GitHub Pages から Vercel Functions を呼ぶために以下を設定します。
+
+- VITE_UPDATE_API_BASE_URL
+
+例: https://your-project.vercel.app
+
+## デプロイ構成 (GitHub Pages + Vercel Functions)
+
+- フロントエンドは GitHub Pages にデプロイします。
+- 更新 API は Vercel Functions (/api/update-data) で実行します。
+- 永続データは GitHub リポジトリ内の data/*.json に保存します。
+
+この構成では、フロントエンドから更新 API へクロスオリジンアクセスが発生するため、ALLOWED_ORIGINS に GitHub Pages の公開 URL を設定してください。
 
 ## 保存方式
 

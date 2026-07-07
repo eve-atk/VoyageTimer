@@ -5,9 +5,18 @@ export interface SaveResult {
   message: string
 }
 
+function getUpdateApiUrl(): string {
+  const baseUrl = import.meta.env.VITE_UPDATE_API_BASE_URL as string | undefined
+  if (!baseUrl) {
+    return '/api/update-data'
+  }
+
+  return `${baseUrl.replace(/\/$/, '')}/api/update-data`
+}
+
 export async function saveRemoteData(data: AppData): Promise<SaveResult> {
   try {
-    const response = await fetch('/api/update-data', {
+    const response = await fetch(getUpdateApiUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
