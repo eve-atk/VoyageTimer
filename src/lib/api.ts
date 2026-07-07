@@ -30,7 +30,6 @@ export async function saveRemoteData(data: AppData): Promise<SaveResult> {
     const response = await fetch(getUpdateApiUrl(), {
       method: 'POST',
       headers,
-      credentials: 'include',
       body: JSON.stringify(data),
     })
 
