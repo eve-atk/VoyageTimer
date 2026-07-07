@@ -78,6 +78,56 @@ function App() {
     void persist(nextData, `${updatedShip.name} の設定を保存しました。`)
   }
 
+  function deleteShip(shipId: number) {
+    const target = data.ships.find((ship) => ship.id === shipId)
+    if (!target) {
+      return
+    }
+
+    const nextData = {
+      ...data,
+      ships: data.ships.filter((ship) => ship.id !== shipId),
+      voyages: data.voyages.filter((voyage) => voyage.shipId !== shipId),
+    }
+
+    void persist(nextData, `${target.name} を削除しました。`)
+  }
+
+  function addShip(account: string, name: string, rank: number) {
+    const hull = data.parts.find((part) => part.type === 'hull')?.id
+    const stern = data.parts.find((part) => part.type === 'stern')?.id
+    const bow = data.parts.find((part) => part.type === 'bow')?.id
+    const bridge = data.parts.find((part) => part.type === 'bridge')?.id
+    const defaultRouteId = data.routes[0]?.id
+
+    if (!hull || !stern || !bow || !bridge || !defaultRouteId) {
+      setStatusMessage('初期パーツまたは初期航路が不足しているため、艦船を追加できません。')
+      return
+    }
+
+    const nextId = data.ships.reduce((maxId, ship) => Math.max(maxId, ship.id), 0) + 1
+    const nextShip: Ship = {
+      id: nextId,
+      account,
+      name,
+      rank,
+      parts: {
+        hull,
+        stern,
+        bow,
+        bridge,
+      },
+      lastRouteId: defaultRouteId,
+    }
+
+    const nextData = {
+      ...data,
+      ships: [...data.ships, nextShip],
+    }
+
+    void persist(nextData, `${nextShip.name} を追加しました。`)
+  }
+
   function registerDeparture(shipId: number, routeId: string, departureTime: string) {
     const ship = data.ships.find((item) => item.id === shipId)
     const route = data.routes.find((item) => item.id === routeId)
@@ -208,10 +258,11 @@ function App() {
           <section className="panel stack-gap">
             <div className="section-header">
               <h2>艦船設定</h2>
-              <span>最大8隻を想定</span>
+              <span>必要数を追加可能</span>
             </div>
+            <ShipCreateForm ships={data.ships} onAdd={addShip} />
             {data.ships.map((ship) => (
-              <ShipEditor key={ship.id} ship={ship} parts={data.parts} onSave={updateShip} />
+              <ShipEditor key={ship.id} ship={ship} parts={data.parts} onSave={updateShip} onDelete={deleteShip} />
             ))}
           </section>
         )}
@@ -243,9 +294,71 @@ interface ShipEditorProps {
   ship: Ship
   parts: PartMaster[]
   onSave: (ship: Ship) => void
+  onDelete: (shipId: number) => void
 }
 
-function ShipEditor({ ship, parts, onSave }: ShipEditorProps) {
+interface ShipCreateFormProps {
+  ships: Ship[]
+  onAdd: (account: string, name: string, rank: number) => void
+}
+
+function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
+  const defaultAccount = ships[0]?.account ?? 'メイン'
+  const nextNumber = ships.length + 1
+  const [account, setAccount] = useState(defaultAccount)
+  const [name, setName] = useState(`${nextNumber}号艦`)
+  const [rank, setRank] = useState(1)
+
+  const accountCandidates = Array.from(new Set(ships.map((ship) => ship.account)))
+
+  return (
+    <form
+      className="editor-card"
+      onSubmit={(event) => {
+        event.preventDefault()
+        const trimmedAccount = account.trim()
+        const trimmedName = name.trim()
+
+        if (!trimmedAccount || !trimmedName) {
+          return
+        }
+
+        onAdd(trimmedAccount, trimmedName, Math.max(1, rank))
+        setName(`${nextNumber + 1}号艦`)
+        setRank(1)
+      }}
+    >
+      <div className="section-header">
+        <h3>新規艦船を追加</h3>
+        <span>新規アカウント名も入力可能</span>
+      </div>
+      <div className="form-grid">
+        <label>
+          アカウント
+          <input list="account-candidates" value={account} onChange={(event) => setAccount(event.target.value)} />
+          <datalist id="account-candidates">
+            {accountCandidates.map((item) => (
+              <option key={item} value={item} />
+            ))}
+          </datalist>
+        </label>
+        <label>
+          艦名
+          <input value={name} onChange={(event) => setName(event.target.value)} />
+        </label>
+        <label>
+          ランク
+          <input type="number" min={1} value={rank} onChange={(event) => setRank(Number(event.target.value))} />
+        </label>
+      </div>
+      <button className="primary-button" type="submit">
+        艦船を追加
+      </button>
+    </form>
+  )
+}
+
+function ShipEditor({ ship, parts, onSave, onDelete }: ShipEditorProps) {
   const [draft, setDraft] = useState(ship)
 
   useEffect(() => {
@@ -307,9 +420,23 @@ function ShipEditor({ ship, parts, onSave }: ShipEditorProps) {
           </label>
         ))}
       </div>
-      <button className="primary-button" type="submit">
-        艦船設定を保存
-      </button>
+      <div className="summary-row">
+        <button className="primary-button" type="submit">
+          艦船設定を保存
+        </button>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={() => {
+            const ok = window.confirm(`${ship.name} を削除します。よろしいですか？`)
+            if (ok) {
+              onDelete(ship.id)
+            }
+          }}
+        >
+          艦船を削除
+        </button>
+      </div>
     </form>
   )
 }
