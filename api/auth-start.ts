@@ -45,6 +45,7 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
 
   const requestUrl = new URL(req.url ?? '/', 'https://placeholder.local')
   const redirect = requestUrl.searchParams.get('redirect')
+  const debug = requestUrl.searchParams.get('debug') === '1'
 
   if (!redirect) {
     send(res, 400, 'redirect パラメータが必要です。')
@@ -84,6 +85,25 @@ export default function handler(req: RequestLike, res: ResponseLike): void {
   authorizeUrl.searchParams.set('redirect_uri', callbackUrl)
   authorizeUrl.searchParams.set('scope', 'read:user')
   authorizeUrl.searchParams.set('state', state)
+
+  if (debug) {
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.end(
+      JSON.stringify(
+        {
+          clientId,
+          callbackUrl,
+          authorizeUrl: authorizeUrl.toString(),
+          requestedRedirect: redirectUrl.toString(),
+          allowedOrigins,
+        },
+        null,
+        2,
+      ),
+    )
+    return
+  }
 
   res.statusCode = 302
   res.setHeader('Location', authorizeUrl.toString())
