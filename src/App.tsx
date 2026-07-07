@@ -322,7 +322,12 @@ interface DepartureEditorProps {
 }
 
 function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEditorProps) {
-  const defaultDepartureTime = new Date().toISOString().slice(0, 16)
+  const formatDateTimeLocal = (date: Date): string => {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    return local.toISOString().slice(0, 16)
+  }
+
+  const defaultDepartureTime = formatDateTimeLocal(new Date())
   const [routeId, setRouteId] = useState(ship.lastRouteId)
   const [departureTime, setDepartureTime] = useState(defaultDepartureTime)
 
@@ -356,6 +361,12 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
         <label>
           出港時刻
           <input type="datetime-local" value={departureTime} onChange={(event) => setDepartureTime(event.target.value)} />
+        </label>
+        <label>
+          時刻操作
+          <button className="secondary-button" type="button" onClick={() => setDepartureTime(formatDateTimeLocal(new Date()))}>
+            現在時刻をセット
+          </button>
         </label>
       </div>
       <p className="helper-text">
