@@ -32,6 +32,16 @@ function isAllowedOrigin(origin: string | undefined, allowedOrigins: string[]): 
   return allowedOrigins.includes(origin)
 }
 
+function normalizeAllowedOrigin(value: string): string {
+  const unquoted = value.trim().replace(/^['\"]|['\"]$/g, '')
+
+  try {
+    return new URL(unquoted).origin
+  } catch {
+    return unquoted
+  }
+}
+
 function setCorsHeaders(reqOrigin: string | undefined, res: ResponseLike, allowedOrigins: string[]): boolean {
   if (!isAllowedOrigin(reqOrigin, allowedOrigins)) {
     return false
@@ -68,7 +78,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   const origin = Array.isArray(requestOrigin) ? requestOrigin[0] : requestOrigin
   const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
     .split(',')
-    .map((item) => item.trim())
+    .map((item) => normalizeAllowedOrigin(item))
     .filter((item) => item.length > 0)
 
   if (!setCorsHeaders(origin, res, allowedOrigins)) {
