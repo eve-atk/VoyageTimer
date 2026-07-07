@@ -10,7 +10,7 @@ function getApiBaseUrl(): string {
   return baseUrl.replace(/\/$/, '')
 }
 
-function getCurrentAppUrl(): string {
+export function getCurrentAppUrl(): string {
   return window.location.origin + window.location.pathname + window.location.search
 }
 

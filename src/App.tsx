@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { consumeAuthCallbackFromHash, fetchAuthSession, getAuthStartUrl, getLogoutUrl, clearAuthSession } from './lib/auth'
+import {
+  clearAuthSession,
+  consumeAuthCallbackFromHash,
+  fetchAuthSession,
+  getAuthStartUrl,
+  getCurrentAppUrl,
+  getLogoutUrl,
+} from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
 import { loadAppData, loadLatestAppData, saveAppData } from './lib/storage'
@@ -300,8 +307,24 @@ function App() {
       discardShipSettingsChanges()
     }
 
+    const currentAppUrl = getCurrentAppUrl()
+    const logoutUrl = getLogoutUrl()
+
     clearAuthSession()
-    window.location.href = getLogoutUrl()
+
+    if (logoutUrl) {
+      const iframe = document.createElement('iframe')
+      iframe.hidden = true
+      iframe.setAttribute('aria-hidden', 'true')
+      iframe.src = logoutUrl
+      document.body.appendChild(iframe)
+
+      window.setTimeout(() => {
+        iframe.remove()
+      }, 5_000)
+    }
+
+    window.location.replace(currentAppUrl)
   }
 
   return (
