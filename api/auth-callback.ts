@@ -129,6 +129,7 @@ export default async function handler(req: RequestLike, res: ResponseLike): Prom
   )
 
   const redirectUrl = new URL(redirect)
+  redirectUrl.hash = `auth_token=${encodeURIComponent(appToken)}&auth_user=${encodeURIComponent(login)}`
 
   res.statusCode = 302
   res.setHeader('Location', redirectUrl.toString())

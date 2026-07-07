@@ -22,7 +22,41 @@ export function getLogoutUrl(): string {
   return baseUrl ? `${baseUrl}/api/logout` : '/api/logout'
 }
 
+export function getStoredAuthToken(): string | null {
+  return window.localStorage.getItem(TOKEN_KEY)
+}
+
+export function getStoredAuthUser(): string | null {
+  return window.localStorage.getItem(USER_KEY)
+}
+
+export function consumeAuthCallbackFromHash(): { changed: boolean; user?: string } {
+  if (!window.location.hash) {
+    return { changed: false }
+  }
+
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+  const authToken = hashParams.get('auth_token')
+  const authUser = hashParams.get('auth_user')
+
+  if (!authToken || !authUser) {
+    return { changed: false }
+  }
+
+  window.localStorage.setItem(TOKEN_KEY, authToken)
+  window.localStorage.setItem(USER_KEY, authUser)
+  window.history.replaceState(null, '', window.location.pathname + window.location.search)
+
+  return { changed: true, user: authUser }
+}
+
 export async function fetchAuthSession(): Promise<{ user?: string; isAuthenticated: boolean }> {
+  const localToken = getStoredAuthToken()
+  const localUser = getStoredAuthUser()
+  if (localToken && localUser) {
+    return { isAuthenticated: true, user: localUser }
+  }
+
   const baseUrl = getApiBaseUrl()
   const url = baseUrl ? `${baseUrl}/api/session` : '/api/session'
 
@@ -42,6 +76,6 @@ export async function fetchAuthSession(): Promise<{ user?: string; isAuthenticat
 }
 
 export function clearAuthSession(): void {
-  // クッキーをクリアするため、ログアウト時にサーバー側と連携することが推奨される
-  // ここではフロントエンド側のUI状態をクリアするのみ
+  window.localStorage.removeItem(TOKEN_KEY)
+  window.localStorage.removeItem(USER_KEY)
 }

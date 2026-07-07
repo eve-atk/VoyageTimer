@@ -124,7 +124,11 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 
   const cookieHeader = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.cookie
   const cookies = Array.isArray(cookieHeader) ? cookieHeader[0] : cookieHeader
-  const authToken = getCookieValue(cookies, 'auth_token')
+  const authHeader = (req as { headers?: Record<string, string | string[] | undefined> }).headers?.authorization
+  const authorization = Array.isArray(authHeader) ? authHeader[0] : authHeader
+  const bearerToken = authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+
+  const authToken = bearerToken || getCookieValue(cookies, 'auth_token')
 
   if (!authToken) {
     send(res, 401, { message: '認証トークンが必要です。先にログインしてください。' })

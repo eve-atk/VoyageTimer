@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fetchAuthSession, getAuthStartUrl, getLogoutUrl, clearAuthSession } from './lib/auth'
+import { consumeAuthCallbackFromHash, fetchAuthSession, getAuthStartUrl, getLogoutUrl, clearAuthSession } from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
 import { loadAppData, saveAppData } from './lib/storage'
@@ -23,6 +23,15 @@ function App() {
   const [authUser, setAuthUser] = useState<string | null>(null)
 
   useEffect(() => {
+    const callbackResult = consumeAuthCallbackFromHash()
+    if (callbackResult.changed) {
+      if (callbackResult.user) {
+        setAuthUser(callbackResult.user)
+      }
+      setStatusMessage('ログインが完了しました。')
+      return
+    }
+
     fetchAuthSession().then((session) => {
       if (session.isAuthenticated && session.user) {
         setAuthUser(session.user)
