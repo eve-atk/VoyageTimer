@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { initialData } from './data'
 import { clearAuthSession, consumeAuthCallbackFromHash, getAuthStartUrl, getStoredAuthUser } from './lib/auth'
 import { saveRemoteData } from './lib/api'
 import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoyage } from './lib/calculations'
 import { loadAppData, saveAppData } from './lib/storage'
 import type { AppData, PartMaster, PartType, RouteMaster, Ship, Voyage } from './types'
 
-type View = 'dashboard' | 'ships' | 'departures' | 'masters'
+type View = 'dashboard' | 'ships' | 'departures'
 
 const partLabels: Record<PartType, string> = {
   hull: '船体',
@@ -122,24 +121,6 @@ function App() {
     void persist(nextData, `${ship.name} を ${route.name} に出港登録しました。`)
   }
 
-  function updateParts(parts: PartMaster[]) {
-    const nextData = {
-      ...data,
-      parts,
-    }
-
-    void persist(nextData, 'パーツマスタを更新しました。')
-  }
-
-  function updateRoutes(routes: RouteMaster[]) {
-    const nextData = {
-      ...data,
-      routes,
-    }
-
-    void persist(nextData, '航路マスタを更新しました。')
-  }
-
   function startLogin() {
     window.location.href = getAuthStartUrl()
   }
@@ -183,7 +164,6 @@ function App() {
           ['dashboard', 'ダッシュボード'],
           ['ships', '艦船設定'],
           ['departures', '出港登録'],
-          ['masters', 'マスタ管理'],
         ].map(([tab, label]) => (
           <button
             key={tab}
@@ -254,15 +234,6 @@ function App() {
           </section>
         )}
 
-        {view === 'masters' && (
-          <section className="panel stack-gap">
-            <div className="section-header">
-              <h2>マスタ管理</h2>
-              <span>初期MVP向けの簡易編集</span>
-            </div>
-            <MasterEditor parts={data.parts} routes={data.routes} onSaveParts={updateParts} onSaveRoutes={updateRoutes} />
-          </section>
-        )}
       </main>
     </div>
   )
@@ -394,79 +365,6 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
         出港登録
       </button>
     </form>
-  )
-}
-
-interface MasterEditorProps {
-  parts: PartMaster[]
-  routes: RouteMaster[]
-  onSaveParts: (parts: PartMaster[]) => void
-  onSaveRoutes: (routes: RouteMaster[]) => void
-}
-
-function MasterEditor({ parts, routes, onSaveParts, onSaveRoutes }: MasterEditorProps) {
-  const [partsJson, setPartsJson] = useState(JSON.stringify(parts, null, 2))
-  const [routesJson, setRoutesJson] = useState(JSON.stringify(routes, null, 2))
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    setPartsJson(JSON.stringify(parts, null, 2))
-  }, [parts])
-
-  useEffect(() => {
-    setRoutesJson(JSON.stringify(routes, null, 2))
-  }, [routes])
-
-  function submitParts() {
-    try {
-      const parsed = JSON.parse(partsJson) as PartMaster[]
-      onSaveParts(parsed)
-      setError('')
-    } catch {
-      setError('パーツマスタJSONの形式が不正です。')
-    }
-  }
-
-  function submitRoutes() {
-    try {
-      const parsed = JSON.parse(routesJson) as RouteMaster[]
-      onSaveRoutes(parsed)
-      setError('')
-    } catch {
-      setError('航路マスタJSONの形式が不正です。')
-    }
-  }
-
-  return (
-    <div className="master-grid">
-      <div className="editor-card">
-        <div className="section-header">
-          <h3>パーツマスタ</h3>
-          <button className="secondary-button" type="button" onClick={submitParts}>
-            保存
-          </button>
-        </div>
-        <textarea rows={16} value={partsJson} onChange={(event) => setPartsJson(event.target.value)} />
-      </div>
-      <div className="editor-card">
-        <div className="section-header">
-          <h3>航路マスタ</h3>
-          <button className="secondary-button" type="button" onClick={submitRoutes}>
-            保存
-          </button>
-        </div>
-        <textarea rows={16} value={routesJson} onChange={(event) => setRoutesJson(event.target.value)} />
-      </div>
-      {error ? <p className="error-text">{error}</p> : null}
-      <div className="editor-card muted-card">
-        <h3>保存構成メモ</h3>
-        <ul>
-          <li>ローカルでは即時に localStorage へ保存します。</li>
-          <li>同時に /api/update-data へPOSTし、Vercel 経由で GitHub 更新を試みます。</li>
-          <li>本番では API 側に署名検証と GitHub PAT 設定が必要です。</li>
-        </ul>
-      </div>
-    </div>
   )
 }
 
