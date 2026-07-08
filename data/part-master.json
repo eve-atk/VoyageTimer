@@ -2,7 +2,7 @@
   {
     "id": "hull_shark_mod",
     "type": "hull",
-    "name": "シャーク改級艦体",
+    "name": "シャーク改",
     "requiredRank": 50,
     "surveillance": -5,
     "retrieval": 40,
@@ -13,7 +13,7 @@
   {
     "id": "hull_unkiu_mod",
     "type": "hull",
-    "name": "ウンキウ改級艦体",
+    "name": "ウンキウ改",
     "requiredRank": 50,
     "surveillance": 20,
     "retrieval": 15,
@@ -24,7 +24,7 @@
   {
     "id": "hull_whale_mod",
     "type": "hull",
-    "name": "ホエール改級艦体",
+    "name": "ホエール改",
     "requiredRank": 50,
     "surveillance": -10,
     "retrieval": 55,
@@ -35,7 +35,7 @@
   {
     "id": "hull_coelacanth_mod",
     "type": "hull",
-    "name": "シーラカンス改級艦体",
+    "name": "シーラカンス改",
     "requiredRank": 50,
     "surveillance": 40,
     "retrieval": -5,
@@ -46,7 +46,7 @@
   {
     "id": "hull_syldra_mod",
     "type": "hull",
-    "name": "シルドラ改級艦体",
+    "name": "シルドラ改",
     "requiredRank": 50,
     "surveillance": 10,
     "retrieval": 80,
@@ -57,7 +57,7 @@
   {
     "id": "stern_shark_mod",
     "type": "stern",
-    "name": "シャーク改級艦尾",
+    "name": "シャーク改",
     "requiredRank": 50,
     "surveillance": -25,
     "retrieval": 25,
@@ -68,7 +68,7 @@
   {
     "id": "stern_unkiu_mod",
     "type": "stern",
-    "name": "ウンキウ改級艦尾",
+    "name": "ウンキウ改",
     "requiredRank": 50,
     "surveillance": 20,
     "retrieval": 5,
@@ -79,7 +79,7 @@
   {
     "id": "stern_whale_mod",
     "type": "stern",
-    "name": "ホエール改級艦尾",
+    "name": "ホエール改",
     "requiredRank": 50,
     "surveillance": 20,
     "retrieval": 20,
@@ -90,7 +90,7 @@
   {
     "id": "stern_coelacanth_mod",
     "type": "stern",
-    "name": "シーラカンス改級艦尾",
+    "name": "シーラカンス改",
     "requiredRank": 50,
     "surveillance": 10,
     "retrieval": 25,
@@ -101,7 +101,7 @@
   {
     "id": "stern_syldra_mod",
     "type": "stern",
-    "name": "シルドラ改級艦尾",
+    "name": "シルドラ改",
     "requiredRank": 50,
     "surveillance": 20,
     "retrieval": 60,
@@ -112,7 +112,7 @@
   {
     "id": "bow_shark_mod",
     "type": "bow",
-    "name": "シャーク改級艦首",
+    "name": "シャーク改",
     "requiredRank": 50,
     "surveillance": 55,
     "retrieval": 50,
@@ -123,7 +123,7 @@
   {
     "id": "bow_unkiu_mod",
     "type": "bow",
-    "name": "ウンキウ改級艦首",
+    "name": "ウンキウ改",
     "requiredRank": 50,
     "surveillance": 65,
     "retrieval": 25,
@@ -134,7 +134,7 @@
   {
     "id": "bow_whale_mod",
     "type": "bow",
-    "name": "ホエール改級艦首",
+    "name": "ホエール改",
     "requiredRank": 50,
     "surveillance": 25,
     "retrieval": 65,
@@ -145,7 +145,7 @@
   {
     "id": "bow_coelacanth_mod",
     "type": "bow",
-    "name": "シーラカンス改級艦首",
+    "name": "シーラカンス改",
     "requiredRank": 50,
     "surveillance": 70,
     "retrieval": 15,
@@ -156,7 +156,7 @@
   {
     "id": "bow_syldra_mod",
     "type": "bow",
-    "name": "シルドラ改級艦首",
+    "name": "シルドラ改",
     "requiredRank": 50,
     "surveillance": 45,
     "retrieval": 30,
@@ -167,7 +167,7 @@
   {
     "id": "bridge_shark_mod",
     "type": "bridge",
-    "name": "シャーク改級艦橋",
+    "name": "シャーク改",
     "requiredRank": 50,
     "surveillance": 25,
     "retrieval": 25,
@@ -178,7 +178,7 @@
   {
     "id": "bridge_unkiu_mod",
     "type": "bridge",
-    "name": "ウンキウ改級艦橋",
+    "name": "ウンキウ改",
     "requiredRank": 50,
     "surveillance": 30,
     "retrieval": 10,
@@ -189,7 +189,7 @@
   {
     "id": "bridge_whale_mod",
     "type": "bridge",
-    "name": "ホエール改級艦橋",
+    "name": "ホエール改",
     "requiredRank": 50,
     "surveillance": 0,
     "retrieval": 30,
@@ -200,7 +200,7 @@
   {
     "id": "bridge_coelacanth_mod",
     "type": "bridge",
-    "name": "シーラカンス改級艦橋",
+    "name": "シーラカンス改",
     "requiredRank": 50,
     "surveillance": 60,
     "retrieval": 20,
@@ -211,7 +211,7 @@
   {
     "id": "bridge_syldra_mod",
     "type": "bridge",
-    "name": "シルドラ改級艦橋",
+    "name": "シルドラ改",
     "requiredRank": 50,
     "surveillance": 60,
     "retrieval": 20,
