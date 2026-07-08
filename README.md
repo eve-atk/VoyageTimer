@@ -123,7 +123,7 @@ GitHub Actions (Repository Secrets) 側で以下を設定します。
 
 Vercel Hobby の制限を避けるため、スケジュール実行は GitHub Actions で行います。
 
-ワークフローは `.github/workflows/notify-discord.yml` で管理し、`*/5 * * * *` で `/api/notify-discord` を呼び出します。
+ワークフローは `.github/workflows/notify-discord.yml` で管理し、`2/5 * * * *` で `/api/notify-discord` を呼び出します。
 
 `CRON_SECRET` は十分長いランダム文字列にし、定期的にローテーションしてください。
 
