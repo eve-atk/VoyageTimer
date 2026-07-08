@@ -1,15 +1,15 @@
 [
   {
-    "id": "SeaofAsh_MN",
-    "name": "灰海 MN",
-    "baseSpeed": 260,
-    "baseDurationMinutes": 1227
-  },
-  {
     "id": "DeepSea_MROJZ",
     "name": "溺沈海 MROJZ",
     "baseSpeed": 270,
     "baseDurationMinutes": 2023
+  },
+  {
+    "id": "SeaofAsh_MN",
+    "name": "灰海 MN",
+    "baseSpeed": 260,
+    "baseDurationMinutes": 1227
   },
   {
     "id": "SeaofJade_PMN",
