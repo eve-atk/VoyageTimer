@@ -4,13 +4,13 @@
     "routeId": "oj",
     "departureTime": "2026-07-07T07:58:00.000Z",
     "arrivalTime": "2026-07-08T02:22:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 3,
     "routeId": "oj",
     "departureTime": "2026-07-07T08:31:00.000Z",
     "arrivalTime": "2026-07-08T01:23:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
