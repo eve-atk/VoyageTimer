@@ -37,5 +37,57 @@
       "bridge": "bridge_coelacanth_mod"
     },
     "lastRouteId": "ow"
+  },
+  {
+    "id": 4,
+    "account": "サブ",
+    "name": "1号艦",
+    "rank": 90,
+    "parts": {
+      "hull": "hull_coelacanth_mod",
+      "stern": "stern_shark_mod",
+      "bow": "bow_unkiu_mod",
+      "bridge": "bridge_whale_mod"
+    },
+    "lastRouteId": "SeaofAsh_MN"
+  },
+  {
+    "id": 5,
+    "account": "サブ",
+    "name": "2号艦",
+    "rank": 89,
+    "parts": {
+      "hull": "hull_coelacanth_mod",
+      "stern": "stern_shark_mod",
+      "bow": "bow_unkiu_mod",
+      "bridge": "bridge_whale_mod"
+    },
+    "lastRouteId": "SeaofAsh_MN"
+  },
+  {
+    "id": 6,
+    "account": "サブ",
+    "name": "3号艦",
+    "rank": 89,
+    "parts": {
+      "hull": "hull_coelacanth_mod",
+      "stern": "stern_shark_mod",
+      "bow": "bow_unkiu_mod",
+      "bridge": "bridge_whale_mod"
+    },
+    "lastRouteId": "SeaofAsh_MN"
+  },
+  {
+    "id": 7,
+    "account": "サブ",
+    "name": "4号艦",
+    "rank": 86,
+    "parts": {
+      "hull": "hull_coelacanth_mod",
+      "stern": "stern_shark_mod",
+      "bow": "bow_unkiu_mod",
+      "bridge": "bridge_whale_mod"
+    },
+    "lastRouteId": "SeaofAsh_MN"
   }
 ]
