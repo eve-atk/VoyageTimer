@@ -8,7 +8,7 @@ FF14 の潜水艦運用向けに、潜水艦設定、出港登録、帰港時刻
 - 潜水艦、航路、パーツ、ランク補正、出港データの型定義
 - 帰港時刻の自動計算ロジック
 - ダッシュボード、潜水艦設定、出港登録、マスタ管理の初期UI
-- Vercel Functions 経由で GitHub JSON を更新する API スタブ
+- Vercel Functions 経由で GitHub JSON を更新する API 実装
 
 ## セットアップ
 
@@ -110,11 +110,15 @@ VITE_DATA_RAW_BASE_URL=https://raw.githubusercontent.com/your-github-owner/your-
 
 この構成では、フロントエンドから更新 API へクロスオリジンアクセスが発生するため、ALLOWED_ORIGINS に GitHub Pages の公開 URL を設定してください。
 
+`ALLOWED_ORIGINS` はカンマ区切りで複数 origin を指定できます。`https://example.github.io,https://your-project.vercel.app,http://localhost:5173` のように、本番・プレビュー・ローカル開発の origin を必要に応じて列挙してください。
+
 ## ユーザー認証付き更新フロー
 
 - `/api/auth-start` で GitHub OAuth 認証を開始します。
 - `/api/auth-callback` で GitHub ログインを検証し、短命アクセストークンを発行します。
-- フロントエンドはトークンを保持し、`/api/update-data` 呼び出し時に Authorization ヘッダーへ Bearer トークンとして付与します。
+- フロントエンドはトークンを保持し、`/api/update-data` 呼び出し時に Authorization ヘッダーへ Bearer トークンとして付与します（API 側は cookie の `auth_token` にも対応しています）。
+- `/api/session` で認証状態を取得できます。
+- `/api/logout` で `auth_token` cookie を破棄してログアウトできます。
 - `ALLOWED_GITHUB_USERS` に含まれない GitHub ユーザーは更新できません。
 
 ### GitHub OAuth App の設定
@@ -129,14 +133,15 @@ VITE_DATA_RAW_BASE_URL=https://raw.githubusercontent.com/your-github-owner/your-
 1. GitHub Pages 側を開く
 2. 画面右上の「GitHubでログイン」を押す
 3. GitHub 認証完了後、アプリに戻ってユーザー名表示を確認
-4. 保存操作を行い、`GitHub リポジトリへ保存しました。` が表示されることを確認
+4. 保存操作を行い、`GitHub へ保存しました。` が表示されることを確認
 
 ## 保存方式
 
 - フロントエンドは localStorage に即時保存します。
-- 起動時は GitHub の raw JSON を読み込み、最新データを表示します。
+- `VITE_DATA_RAW_BASE_URL` が設定されている場合、起動時に GitHub の raw JSON を読み込み、最新データを表示します。
+- `VITE_DATA_RAW_BASE_URL` が未設定の場合は、バンドル済み初期データと localStorage の内容で動作します。
 - その後、/api/update-data に POST して GitHub リポジトリ内の JSON 更新を試みます。
-- 現在の API は最小スタブであり、将来は認証強化と競合制御の改善が必要です。
+- API は GitHub Contents API を利用して `data/*.json` の取得・差分判定・更新を行います。
 
 ## Discord 通知 (単一Webhook + 5分Cron + 重複防止)
 
