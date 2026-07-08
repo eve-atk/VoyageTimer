@@ -1,6 +1,6 @@
 :root {
   color-scheme: dark;
-  font-family: 'BIZ UDPGothic', 'Yu Gothic', sans-serif;
+  font-family: 'Noto Sans JP', 'BIZ UDPGothic', 'Yu Gothic', sans-serif;
   line-height: 1.5;
   --bg-base:
     radial-gradient(circle at 10% 10%, rgba(255, 151, 66, 0.2), transparent 34%),
@@ -114,7 +114,8 @@ textarea {
 .section-header h3,
 .summary-card h3 {
   margin: 0;
-  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  font-family: 'Noto Sans JP', 'BIZ UDPGothic', 'Yu Gothic', sans-serif;
+  font-weight: 700;
 }
 
 .hero-copy {
@@ -193,6 +194,17 @@ textarea {
   border: 1px solid var(--border);
 }
 
+.ship-settings-save-button,
+.departure-submit-button {
+  padding: 12px 18px;
+  min-height: 46px;
+  font-size: 1rem;
+}
+
+.departure-submit-button {
+  margin-top: 8px;
+}
+
 .tab:focus-visible,
 .primary-button:focus-visible,
 .secondary-button:focus-visible,
@@ -218,6 +230,17 @@ textarea:focus-visible {
 .panel,
 .editor-card {
   padding: 20px;
+}
+
+.ship-create-form {
+  display: grid;
+  gap: 14px;
+}
+
+.ship-create-form .primary-button {
+  margin-top: 2px;
+  padding: 10px 16px;
+  min-height: 42px;
 }
 
 .stack-gap {
@@ -266,6 +289,16 @@ textarea:focus-visible {
   min-width: 0;
 }
 
+.ship-editor-actions .primary-button,
+.ship-editor-actions .secondary-button {
+  padding: 10px 14px;
+  min-height: 42px;
+}
+
+.ship-editor-actions {
+  margin-top: 8px;
+}
+
 .summary-card.is-arrived {
   border-color: var(--ok-border);
   background: var(--ok-bg);
@@ -282,6 +315,18 @@ textarea:focus-visible {
 
 .form-grid {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.ship-editor-grid {
+  gap: 12px;
+}
+
+.ship-editor-grid-main {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ship-editor-grid-parts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 label {
@@ -412,10 +457,19 @@ button:disabled {
     width: 100%;
     justify-content: center;
   }
+
+  .ship-create-form .primary-button {
+    margin-top: 6px;
+  }
 }
 
 @media (max-width: 840px) {
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ship-editor-grid-main,
+  .ship-editor-grid-parts {
     grid-template-columns: 1fr;
   }
 }

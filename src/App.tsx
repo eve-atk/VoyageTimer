@@ -15,7 +15,7 @@ import type { AppData, PartMaster, PartType, RouteMaster, Ship, Voyage } from '.
 type View = 'dashboard' | 'ships' | 'departures'
 
 const partLabels: Record<PartType, string> = {
-  hull: '船体',
+  hull: '艦体',
   stern: '艦尾',
   bow: '艦首',
   bridge: '艦橋',
@@ -81,7 +81,7 @@ function App() {
   function discardShipSettingsChanges() {
     setData(committedDataRef.current)
     setShipSettingsDirty(false)
-    setStatusMessage('未保存の艦船設定変更を破棄しました。')
+    setStatusMessage('未保存の潜水艦設定変更を破棄しました。')
   }
 
   const hasUnsavedShipChanges = shipSettingsDirty
@@ -138,7 +138,7 @@ function App() {
       return true
     }
 
-    return window.confirm('艦船設定に未保存の変更があります。保存せずに移動しますか？')
+    return window.confirm('潜水艦設定に未保存の変更があります。保存せずに移動しますか？')
   }
 
   function navigateToView(nextView: View) {
@@ -167,7 +167,7 @@ function App() {
       return
     }
 
-    void persist(data, '艦船設定を保存しました。')
+    void persist(data, '設定を保存しました。')
   }
 
   function deleteShip(shipId: number) {
@@ -216,7 +216,7 @@ function App() {
     const defaultRouteId = data.routes[0]?.id
 
     if (!hull || !stern || !bow || !bridge || !defaultRouteId) {
-      setStatusMessage('初期パーツまたは初期航路が不足しているため、艦船を追加できません。')
+      setStatusMessage('初期パーツまたは初期航路が不足しているため、潜水艦を追加できません。')
       return
     }
 
@@ -247,7 +247,7 @@ function App() {
     const ship = data.ships.find((item) => item.id === shipId)
     const route = data.routes.find((item) => item.id === routeId)
     if (!ship || !route) {
-      setStatusMessage('艦船または航路が見つかりません。')
+      setStatusMessage('潜水艦または航路が見つかりません。')
       return
     }
 
@@ -334,7 +334,7 @@ function App() {
           <p className="eyebrow">FF14 Submarine Ops</p>
           <h1>潜水艦帰港管理ツール</h1>
           <p className="hero-copy">
-            艦船設定、出港登録、帰港時刻計算、ダッシュボード確認までをひとつの画面で管理します。
+            潜水艦設定、出港登録、帰港時刻計算、ダッシュボード確認までをひとつの画面で管理します。
           </p>
         </div>
         <div className="hero-panel">
@@ -358,7 +358,7 @@ function App() {
       <nav className="nav-tabs" aria-label="Primary navigation">
         {[
           ['dashboard', 'ダッシュボード'],
-          ['ships', '艦船設定'],
+          ['ships', '潜水艦設定'],
           ['departures', '出港登録'],
         ].map(([tab, label]) => (
           <button
@@ -390,7 +390,7 @@ function App() {
                       </div>
                       <p>現在航路: {summary.route?.name ?? '未出港'}</p>
                       <p>{formatRemainingMinutes(summary.remainingMinutes)}</p>
-                      <p>実行速度: {summary.effectiveSpeed}</p>
+                      <p>巡航速度: {summary.effectiveSpeed}</p>
                       <p>帰港時刻: {summary.voyage ? new Date(summary.voyage.arrivalTime).toLocaleString('ja-JP') : '-'}</p>
                     </article>
                   ))}
@@ -403,12 +403,17 @@ function App() {
         {view === 'ships' && (
           <section className="panel stack-gap">
             <div className="section-header">
-              <h2>艦船設定</h2>
+              <h2>潜水艦設定</h2>
               <span>必要数を追加可能</span>
             </div>
             <div className="summary-row">
-              <button className="primary-button" type="button" onClick={saveShipSettings} disabled={!hasUnsavedShipChanges}>
-                艦船設定を保存
+              <button
+                className="primary-button ship-settings-save-button"
+                type="button"
+                onClick={saveShipSettings}
+                disabled={!hasUnsavedShipChanges}
+              >
+                設定を保存
               </button>
               {hasUnsavedShipChanges && <span className="helper-text">未保存の変更があります。</span>}
             </div>
@@ -481,7 +486,7 @@ function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
 
   return (
     <form
-      className="editor-card"
+      className="editor-card ship-create-form"
       onSubmit={(event) => {
         event.preventDefault()
         const trimmedAccount = account.trim()
@@ -497,7 +502,7 @@ function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
       }}
     >
       <div className="section-header">
-        <h3>新規艦船を追加</h3>
+        <h3>新規潜水艦を追加</h3>
         <span>新規アカウント名も入力可能</span>
       </div>
       <div className="form-grid">
@@ -520,7 +525,7 @@ function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
         </label>
       </div>
       <button className="primary-button" type="submit">
-        艦船を追加
+        追加
       </button>
     </form>
   )
@@ -547,7 +552,7 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
           </button>
         </div>
       </div>
-      <div className="form-grid">
+      <div className="form-grid ship-editor-grid ship-editor-grid-main">
         <label>
           艦名
           <input value={ship.name} onChange={(event) => onChange({ ...ship, name: event.target.value })} />
@@ -564,6 +569,8 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
             onChange={(event) => onChange({ ...ship, rank: Number(event.target.value) })}
           />
         </label>
+      </div>
+      <div className="form-grid ship-editor-grid ship-editor-grid-parts">
         {(['hull', 'stern', 'bow', 'bridge'] as PartType[]).map((partType) => (
           <label key={partType}>
             {partLabels[partType]}
@@ -590,9 +597,9 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
           </label>
         ))}
       </div>
-      <div className="summary-row">
+      <div className="summary-row ship-editor-actions">
         <button className="primary-button" type="submit">
-          艦船設定を保存
+          設定を保存
         </button>
         <button
           className="secondary-button"
@@ -604,7 +611,7 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
             }
           }}
         >
-          艦船を削除
+          潜水艦を削除
         </button>
       </div>
     </form>
@@ -619,18 +626,27 @@ interface DepartureEditorProps {
 }
 
 function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEditorProps) {
+  const resolveDefaultRouteId = (lastRouteId: string): string => {
+    if (routes.some((route) => route.id === lastRouteId)) {
+      return lastRouteId
+    }
+
+    return routes[0]?.id ?? ''
+  }
+
   const formatDateTimeLocal = (date: Date): string => {
     const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
     return local.toISOString().slice(0, 16)
   }
 
   const defaultDepartureTime = formatDateTimeLocal(new Date())
-  const [routeId, setRouteId] = useState(ship.lastRouteId)
+  const [routeId, setRouteId] = useState(() => resolveDefaultRouteId(ship.lastRouteId))
   const [departureTime, setDepartureTime] = useState(defaultDepartureTime)
+  const lastRouteName = routes.find((route) => route.id === ship.lastRouteId)?.name ?? ship.lastRouteId
 
   useEffect(() => {
-    setRouteId(ship.lastRouteId)
-  }, [ship.lastRouteId])
+    setRouteId(resolveDefaultRouteId(ship.lastRouteId))
+  }, [routes, ship.lastRouteId])
 
   return (
     <form
@@ -642,7 +658,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
     >
       <div className="section-header">
         <h3 className="ship-name">{ship.name}</h3>
-        <span>前回航路: {ship.lastRouteId}</span>
+        <span>前回航路: {lastRouteName}</span>
       </div>
       <div className="form-grid">
         <label>
@@ -669,7 +685,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
       <p className="helper-text">
         現在の登録: {currentVoyage ? new Date(currentVoyage.arrivalTime).toLocaleString('ja-JP') : '未登録'}
       </p>
-      <button className="primary-button" type="submit">
+      <button className="primary-button departure-submit-button" type="submit">
         出港登録
       </button>
     </form>
