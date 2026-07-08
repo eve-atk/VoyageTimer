@@ -57,6 +57,9 @@ Vercel 側で以下を設定します。
 - AUTH_REDIRECT_URI
 - AUTH_JWT_SECRET
 - ALLOWED_GITHUB_USERS
+- DISCORD_WEBHOOK_URL
+- CRON_SECRET
+- DISCORD_NOTIFY_MAX_PER_RUN (任意。未設定時は 20)
 
 フロントエンド側では、GitHub Pages から Vercel Functions を呼ぶために以下を設定します。
 
@@ -102,3 +105,37 @@ Vercel 側で以下を設定します。
 - 起動時は GitHub の raw JSON を読み込み、最新データを表示します。
 - その後、/api/update-data に POST して GitHub リポジトリ内の JSON 更新を試みます。
 - 現在の API は最小スタブであり、将来は認証強化と競合制御の改善が必要です。
+
+## Discord 通知 (単一Webhook + 5分Cron + 重複防止)
+
+- 通知処理は `/api/notify-discord` で実行します。
+- `data/voyage-data.json` の `notified=false` かつ `arrivalTime <= 現在時刻` を通知対象とします。
+- Discord 送信成功後にのみ `notified=true` へ更新し、重複通知を防ぎます。
+
+### Vercel Cron 設定
+
+このリポジトリでは、Cron Job は Vercel ダッシュボードではなく `vercel.json` で管理します。
+
+`vercel.json` に以下の定義を含めてください。
+
+```json
+{
+	"crons": [
+		{
+			"path": "/api/notify-discord",
+			"schedule": "*/5 * * * *"
+		}
+	]
+}
+```
+
+更新後は Vercel へ再デプロイしてください。
+
+`CRON_SECRET` を設定しておくと、Vercel Cron からの `Authorization: Bearer <CRON_SECRET>` を検証できます。
+この値は必ず十分長いランダム文字列にしてください。
+
+### セキュリティ注意点
+
+- `DISCORD_WEBHOOK_URL` は Vercel の Environment Variables のみで管理し、フロントエンドへ渡さないでください。
+- Webhook URL をログ出力しないでください。
+- 通知本文では `@everyone` / `@here` / メンションを無効化して送信します。
