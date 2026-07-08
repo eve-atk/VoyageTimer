@@ -12,7 +12,7 @@ import { formatRemainingMinutes, getArrivalTime, getEffectiveSpeed, summarizeVoy
 import { loadAppData, loadLatestAppData, saveAppData } from './lib/storage'
 import type { AppData, PartMaster, PartType, RouteMaster, Ship, Voyage } from './types'
 
-type View = 'dashboard' | 'ships' | 'departures'
+type View = 'dashboard' | 'ships' | 'routes' | 'departures'
 
 const partLabels: Record<PartType, string> = {
   hull: '艦体',
@@ -243,6 +243,87 @@ function App() {
     setStatusMessage(`${nextShip.name} を追加しました。保存してください。`)
   }
 
+  function addRoute(id: string, name: string, baseSpeed: number, baseDurationMinutes: number) {
+    const trimmedId = id.trim()
+    const trimmedName = name.trim()
+
+    if (!trimmedId || !trimmedName) {
+      setStatusMessage('航路IDと航路名は必須です。')
+      return false
+    }
+
+    if (data.routes.some((route) => route.id === trimmedId)) {
+      setStatusMessage(`航路ID ${trimmedId} は既に存在します。`)
+      return false
+    }
+
+    const nextRoute: RouteMaster = {
+      id: trimmedId,
+      name: trimmedName,
+      baseSpeed: Math.max(1, Math.floor(baseSpeed)),
+      baseDurationMinutes: Math.max(1, Math.floor(baseDurationMinutes)),
+    }
+
+    const getAreaKey = (routeId: string): string => {
+      const [area] = routeId.split('_')
+      return area.toLowerCase()
+    }
+
+    setData((currentData) => ({
+      ...currentData,
+      routes: [...currentData.routes, nextRoute].sort((a, b) =>
+        getAreaKey(a.id).localeCompare(getAreaKey(b.id), 'ja', { sensitivity: 'base' }) ||
+        a.id.localeCompare(b.id, 'ja', { sensitivity: 'base' }),
+      ),
+    }))
+    setShipSettingsDirty(true)
+    setStatusMessage(`${nextRoute.name} を追加しました。保存してください。`)
+    return true
+  }
+
+  function deleteRoute(routeId: string) {
+    if (data.routes.length <= 1) {
+      setStatusMessage('航路が1件のみのため削除できません。')
+      return
+    }
+
+    const target = data.routes.find((route) => route.id === routeId)
+    if (!target) {
+      return
+    }
+
+    const remainingRoutes = data.routes.filter((route) => route.id !== routeId)
+    const fallbackRouteId = remainingRoutes[0]?.id
+
+    if (!fallbackRouteId) {
+      setStatusMessage('削除後の代替航路を特定できませんでした。')
+      return
+    }
+
+    const removedVoyageCount = data.voyages.filter((voyage) => voyage.routeId === routeId).length
+
+    setData((currentData) => ({
+      ...currentData,
+      routes: currentData.routes.filter((route) => route.id !== routeId),
+      ships: currentData.ships.map((ship) =>
+        ship.lastRouteId === routeId
+          ? {
+              ...ship,
+              lastRouteId: fallbackRouteId,
+            }
+          : ship,
+      ),
+      voyages: currentData.voyages.filter((voyage) => voyage.routeId !== routeId),
+    }))
+
+    setShipSettingsDirty(true)
+    setStatusMessage(
+      removedVoyageCount > 0
+        ? `${target.name} を削除しました。関連する出港登録 ${removedVoyageCount} 件も削除されました。保存してください。`
+        : `${target.name} を削除しました。保存してください。`,
+    )
+  }
+
   function registerDeparture(shipId: number, routeId: string, departureTime: string) {
     const ship = data.ships.find((item) => item.id === shipId)
     const route = data.routes.find((item) => item.id === routeId)
@@ -359,6 +440,7 @@ function App() {
         {[
           ['dashboard', 'ダッシュボード'],
           ['ships', '潜水艦設定'],
+          ['routes', '航路登録'],
           ['departures', '出港登録'],
         ].map(([tab, label]) => (
           <button
@@ -417,7 +499,6 @@ function App() {
           <section className="panel stack-gap ships-panel">
             <div className="section-header">
               <h2>潜水艦設定</h2>
-              <span>必要数を追加可能</span>
             </div>
             <div className={hasUnsavedShipChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
               <button
@@ -448,11 +529,34 @@ function App() {
           </section>
         )}
 
+        {view === 'routes' && (
+          <section className="panel stack-gap ships-panel">
+            <div className="section-header">
+              <h2>航路登録</h2>
+              <span>航路の追加・削除</span>
+            </div>
+            <div className={hasUnsavedShipChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
+              <button
+                className="primary-button ship-settings-save-button btn-size-lg"
+                type="button"
+                onClick={saveShipSettings}
+                disabled={!hasUnsavedShipChanges}
+              >
+                設定を保存
+              </button>
+              {hasUnsavedShipChanges && <span className="helper-text">未保存の変更があります。</span>}
+            </div>
+            <RouteCreateForm routes={data.routes} onAdd={addRoute} />
+            {data.routes.map((route) => (
+              <RouteEditor key={route.id} route={route} onDelete={deleteRoute} />
+            ))}
+          </section>
+        )}
+
         {view === 'departures' && (
           <section className="panel stack-gap">
             <div className="section-header">
               <h2>出港登録</h2>
-              <span>前回航路の再利用に対応</span>
             </div>
             {data.ships.map((ship) => (
               <DepartureEditor
@@ -486,6 +590,16 @@ interface ShipEditorProps {
 interface ShipCreateFormProps {
   ships: Ship[]
   onAdd: (account: string, name: string, rank: number) => void
+}
+
+interface RouteCreateFormProps {
+  routes: RouteMaster[]
+  onAdd: (id: string, name: string, baseSpeed: number, baseDurationMinutes: number) => boolean
+}
+
+interface RouteEditorProps {
+  route: RouteMaster
+  onDelete: (routeId: string) => void
 }
 
 function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
@@ -541,6 +655,93 @@ function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
         追加
       </button>
     </form>
+  )
+}
+
+function RouteCreateForm({ routes, onAdd }: RouteCreateFormProps) {
+  const [id, setId] = useState('')
+  const [name, setName] = useState('')
+  const [baseSpeed, setBaseSpeed] = useState(200)
+  const [baseDurationMinutes, setBaseDurationMinutes] = useState(1200)
+
+  return (
+    <form
+      className="editor-card ship-create-form"
+      onSubmit={(event) => {
+        event.preventDefault()
+        const ok = onAdd(id, name, baseSpeed, baseDurationMinutes)
+        if (ok) {
+          setId('')
+          setName('')
+        }
+      }}
+    >
+      <div className="section-header">
+        <h3>新規航路を追加</h3>
+      </div>
+      <div className="form-grid">
+        <label>
+          航路ID
+          <input
+            value={id}
+            onChange={(event) => setId(event.target.value)}
+            placeholder="例: SeaofAsh_ABCD"
+          />
+        </label>
+        <label>
+          航路名
+          <input value={name} onChange={(event) => setName(event.target.value)} placeholder="例: 灰海 ABCD" />
+        </label>
+        <label>
+          基本速度
+          <input
+            type="number"
+            min={1}
+            value={baseSpeed}
+            onChange={(event) => setBaseSpeed(Number(event.target.value))}
+          />
+        </label>
+        <label>
+          基本所要時間(分)
+          <input
+            type="number"
+            min={1}
+            value={baseDurationMinutes}
+            onChange={(event) => setBaseDurationMinutes(Number(event.target.value))}
+          />
+        </label>
+      </div>
+      <p className="helper-text">現在の航路数: {routes.length}</p>
+      <button className="primary-button btn-size-md" type="submit">
+        航路を追加
+      </button>
+    </form>
+  )
+}
+
+function RouteEditor({ route, onDelete }: RouteEditorProps) {
+  return (
+    <article className="editor-card">
+      <div className="section-header">
+        <h3>{route.name}</h3>
+        <span>{route.id}</span>
+      </div>
+      <div className="summary-row">
+        <span className="helper-text">基本速度: {route.baseSpeed} / 基本所要時間: {route.baseDurationMinutes}分</span>
+        <button
+          className="secondary-button btn-size-md"
+          type="button"
+          onClick={() => {
+            const ok = window.confirm(`${route.name} を削除します。よろしいですか？`)
+            if (ok) {
+              onDelete(route.id)
+            }
+          }}
+        >
+          航路を削除
+        </button>
+      </div>
+    </article>
   )
 }
 
