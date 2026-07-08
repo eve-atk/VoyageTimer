@@ -57,6 +57,16 @@ Vercel 側で以下を設定します。
 - AUTH_REDIRECT_URI
 - AUTH_JWT_SECRET
 - ALLOWED_GITHUB_USERS
+- DISCORD_WEBHOOK_URL
+- CRON_SECRET
+- DISCORD_NOTIFY_MAX_PER_RUN (任意。未設定時は 20)
+
+GitHub Actions (Repository Secrets) 側で以下を設定します。
+
+- NOTIFY_API_URL (例: `https://your-project.vercel.app/api/notify-discord`)
+- CRON_SECRET (Vercel 側 `CRON_SECRET` と同じ値)
+
+`NOTIFY_API_URL` は GitHub Actions 専用です。Vercel 側へは設定不要です。
 
 フロントエンド側では、GitHub Pages から Vercel Functions を呼ぶために以下を設定します。
 
@@ -102,3 +112,25 @@ Vercel 側で以下を設定します。
 - 起動時は GitHub の raw JSON を読み込み、最新データを表示します。
 - その後、/api/update-data に POST して GitHub リポジトリ内の JSON 更新を試みます。
 - 現在の API は最小スタブであり、将来は認証強化と競合制御の改善が必要です。
+
+## Discord 通知 (単一Webhook + 5分Cron + 重複防止)
+
+- 通知処理は `/api/notify-discord` で実行します。
+- `data/voyage-data.json` の `notified=false` かつ `arrivalTime <= 現在時刻` を通知対象とします。
+- Discord 送信成功後にのみ `notified=true` へ更新し、重複通知を防ぎます。
+
+### スケジュール実行設定 (GitHub Actions)
+
+Vercel Hobby の制限を避けるため、スケジュール実行は GitHub Actions で行います。
+
+ワークフローは `.github/workflows/notify-discord.yml` で管理し、`*/5 * * * *` で `/api/notify-discord` を呼び出します。
+
+`CRON_SECRET` は十分長いランダム文字列にし、定期的にローテーションしてください。
+
+設定後は Actions の `Discord Arrival Notify` を手動実行して、応答と通知結果を確認してください。
+
+### セキュリティ注意点
+
+- `DISCORD_WEBHOOK_URL` は Vercel の Environment Variables のみで管理し、フロントエンドへ渡さないでください。
+- Webhook URL をログ出力しないでください。
+- 通知本文では `@everyone` / `@here` / メンションを無効化して送信します。
