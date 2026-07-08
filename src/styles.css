@@ -29,6 +29,18 @@
   --ok-border: rgba(85, 215, 156, 0.6);
   --pill-bg: rgba(41, 55, 71, 0.95);
   --focus: #53bfff;
+  --btn-font-size-sm: 0.88rem;
+  --btn-font-size-md: 0.94rem;
+  --btn-font-size-lg: 1rem;
+  --btn-pad-y-sm: 8px;
+  --btn-pad-x-sm: 12px;
+  --btn-pad-y-md: 10px;
+  --btn-pad-x-md: 14px;
+  --btn-pad-y-lg: 12px;
+  --btn-pad-x-lg: 18px;
+  --btn-min-h-sm: 38px;
+  --btn-min-h-md: 42px;
+  --btn-min-h-lg: 46px;
 }
 
 @media (prefers-color-scheme: light) {
@@ -175,7 +187,6 @@ textarea {
 }
 
 .tab {
-  padding: 12px 18px;
   background: var(--surface-2);
   color: var(--text-main);
   border: 1px solid var(--border);
@@ -188,17 +199,36 @@ textarea {
 }
 
 .secondary-button {
-  padding: 10px 14px;
+  padding: var(--btn-pad-y-md) var(--btn-pad-x-md);
+  min-height: var(--btn-min-h-md);
+  font-size: var(--btn-font-size-md);
   background: var(--secondary-bg);
   color: var(--secondary-fg);
   border: 1px solid var(--border);
 }
 
-.ship-settings-save-button,
-.departure-submit-button {
-  padding: 12px 18px;
-  min-height: 46px;
-  font-size: 1rem;
+.primary-button {
+  padding: var(--btn-pad-y-md) var(--btn-pad-x-md);
+  min-height: var(--btn-min-h-md);
+  font-size: var(--btn-font-size-md);
+}
+
+.btn-size-sm {
+  padding: var(--btn-pad-y-sm) var(--btn-pad-x-sm);
+  min-height: var(--btn-min-h-sm);
+  font-size: var(--btn-font-size-sm);
+}
+
+.btn-size-md {
+  padding: var(--btn-pad-y-md) var(--btn-pad-x-md);
+  min-height: var(--btn-min-h-md);
+  font-size: var(--btn-font-size-md);
+}
+
+.btn-size-lg {
+  padding: var(--btn-pad-y-lg) var(--btn-pad-x-lg);
+  min-height: var(--btn-min-h-lg);
+  font-size: var(--btn-font-size-lg);
 }
 
 .departure-submit-button {
@@ -232,6 +262,10 @@ textarea:focus-visible {
   padding: 20px;
 }
 
+.ships-panel {
+  overflow: visible;
+}
+
 .ship-create-form {
   display: grid;
   gap: 14px;
@@ -239,8 +273,6 @@ textarea:focus-visible {
 
 .ship-create-form .primary-button {
   margin-top: 2px;
-  padding: 10px 16px;
-  min-height: 42px;
 }
 
 .stack-gap {
@@ -289,10 +321,19 @@ textarea:focus-visible {
   min-width: 0;
 }
 
-.ship-editor-actions .primary-button,
-.ship-editor-actions .secondary-button {
-  padding: 10px 14px;
-  min-height: 42px;
+.ship-save-bar {
+  margin-top: 2px;
+}
+
+.ship-save-bar.is-dirty {
+  position: sticky;
+  top: 10px;
+  z-index: 12;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  background: var(--surface-strong);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
 .ship-editor-actions {
@@ -327,6 +368,9 @@ textarea:focus-visible {
 
 .ship-editor-grid-parts {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 2px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 label {
@@ -383,8 +427,39 @@ textarea {
 .summary-card p {
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+.summary-metrics {
+  display: grid;
+  gap: 8px;
+}
+
+.metric {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: baseline;
+  line-height: 1.5;
+}
+
+.metric-emphasis {
+  grid-template-columns: 1fr;
+  font-size: clamp(0.98rem, 0.92rem + 0.22vw, 1.08rem);
+  font-weight: 700;
+}
+
+.metric-label {
+  color: var(--text-subtle);
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+}
+
+.metric-value {
+  color: var(--text-main);
   font-size: clamp(0.9rem, 0.85rem + 0.2vw, 0.98rem);
-  line-height: 1.55;
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .summary-card {
@@ -442,6 +517,19 @@ button:disabled {
     line-height: 1.5;
   }
 
+  .metric {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .metric-label {
+    font-size: 0.78rem;
+  }
+
+  .metric-emphasis {
+    font-size: 0.96rem;
+  }
+
   .summary-card h3 {
     font-size: 1.03rem;
   }
@@ -460,6 +548,11 @@ button:disabled {
 
   .ship-create-form .primary-button {
     margin-top: 6px;
+  }
+
+  .ship-save-bar.is-dirty {
+    top: 8px;
+    padding: 8px 10px;
   }
 }
 

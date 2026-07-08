@@ -343,11 +343,11 @@ function App() {
           <p>現在時刻: {now.toLocaleString('ja-JP')}</p>
           <div className="summary-row">
             {authUser ? (
-              <button className="secondary-button" type="button" onClick={logout}>
+              <button className="secondary-button btn-size-md" type="button" onClick={logout}>
                 ログアウト
               </button>
             ) : (
-              <button className="secondary-button" type="button" onClick={startLogin}>
+              <button className="secondary-button btn-size-md" type="button" onClick={startLogin}>
                 GitHubでログイン
               </button>
             )}
@@ -363,7 +363,7 @@ function App() {
         ].map(([tab, label]) => (
           <button
             key={tab}
-            className={view === tab ? 'tab is-active' : 'tab'}
+            className={view === tab ? 'tab btn-size-sm is-active' : 'tab btn-size-sm'}
             onClick={() => navigateToView(tab as View)}
             type="button"
           >
@@ -388,10 +388,23 @@ function App() {
                         <h3 className="ship-name">{summary.ship.name}</h3>
                         <span className="pill">Rank {summary.ship.rank}</span>
                       </div>
-                      <p>現在航路: {summary.route?.name ?? '未出港'}</p>
-                      <p>{formatRemainingMinutes(summary.remainingMinutes)}</p>
-                      <p>巡航速度: {summary.effectiveSpeed}</p>
-                      <p>帰港時刻: {summary.voyage ? new Date(summary.voyage.arrivalTime).toLocaleString('ja-JP') : '-'}</p>
+                      <div className="summary-metrics">
+                        <p className="metric metric-emphasis">{formatRemainingMinutes(summary.remainingMinutes)}</p>
+                        <p className="metric">
+                          <span className="metric-label">帰港時刻</span>
+                          <span className="metric-value">
+                            {summary.voyage ? new Date(summary.voyage.arrivalTime).toLocaleString('ja-JP') : '-'}
+                          </span>
+                        </p>
+                        <p className="metric">
+                          <span className="metric-label">現在航路</span>
+                          <span className="metric-value">{summary.route?.name ?? '未出港'}</span>
+                        </p>
+                        <p className="metric">
+                          <span className="metric-label">巡航速度</span>
+                          <span className="metric-value">{summary.effectiveSpeed}</span>
+                        </p>
+                      </div>
                     </article>
                   ))}
                 </div>
@@ -401,14 +414,14 @@ function App() {
         )}
 
         {view === 'ships' && (
-          <section className="panel stack-gap">
+          <section className="panel stack-gap ships-panel">
             <div className="section-header">
               <h2>潜水艦設定</h2>
               <span>必要数を追加可能</span>
             </div>
-            <div className="summary-row">
+            <div className={hasUnsavedShipChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
               <button
-                className="primary-button ship-settings-save-button"
+                className="primary-button ship-settings-save-button btn-size-lg"
                 type="button"
                 onClick={saveShipSettings}
                 disabled={!hasUnsavedShipChanges}
@@ -524,7 +537,7 @@ function ShipCreateForm({ ships, onAdd }: ShipCreateFormProps) {
           <input type="number" min={1} value={rank} onChange={(event) => setRank(Number(event.target.value))} />
         </label>
       </div>
-      <button className="primary-button" type="submit">
+      <button className="primary-button btn-size-md" type="submit">
         追加
       </button>
     </form>
@@ -544,10 +557,10 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
         <h3 className="ship-name">{ship.name}</h3>
         <div className="summary-row">
           <span>{ship.account}</span>
-          <button className="secondary-button" type="button" onClick={onMoveUp} disabled={!canMoveUp}>
+          <button className="secondary-button btn-size-sm" type="button" onClick={onMoveUp} disabled={!canMoveUp}>
             上へ
           </button>
-          <button className="secondary-button" type="button" onClick={onMoveDown} disabled={!canMoveDown}>
+          <button className="secondary-button btn-size-sm" type="button" onClick={onMoveDown} disabled={!canMoveDown}>
             下へ
           </button>
         </div>
@@ -598,11 +611,11 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
         ))}
       </div>
       <div className="summary-row ship-editor-actions">
-        <button className="primary-button" type="submit">
+        <button className="primary-button btn-size-md" type="submit">
           設定を保存
         </button>
         <button
-          className="secondary-button"
+          className="secondary-button btn-size-md"
           type="button"
           onClick={() => {
             const ok = window.confirm(`${ship.name} を削除します。よろしいですか？`)
@@ -677,7 +690,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
         </label>
         <label>
           時刻操作
-          <button className="secondary-button" type="button" onClick={() => setDepartureTime(formatDateTimeLocal(new Date()))}>
+          <button className="secondary-button btn-size-sm" type="button" onClick={() => setDepartureTime(formatDateTimeLocal(new Date()))}>
             現在時刻をセット
           </button>
         </label>
@@ -685,7 +698,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
       <p className="helper-text">
         現在の登録: {currentVoyage ? new Date(currentVoyage.arrivalTime).toLocaleString('ja-JP') : '未登録'}
       </p>
-      <button className="primary-button departure-submit-button" type="submit">
+      <button className="primary-button departure-submit-button btn-size-lg" type="submit">
         出港登録
       </button>
     </form>
