@@ -209,6 +209,17 @@
     "favor": 55
   },
   {
+    "id": "bridge_coelacanth_modaaaa",
+    "type": "bridge",
+    "name": "シーラカンス改級艦橋ああああ",
+    "requiredRank": 50,
+    "surveillance": 60,
+    "retrieval": 20,
+    "speed": 35,
+    "range": -10,
+    "favor": 55
+  },
+  {
     "id": "bridge_syldra_mod",
     "type": "bridge",
     "name": "シルドラ改級艦橋",
