@@ -1,0 +1,9 @@
+name = "voyage-notify-worker"
+main = "src/index.ts"
+compatibility_date = "2026-07-08"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+NOTIFY_API_URL = "https://voyage-timer.vercel.app/api/notify-discord"
