@@ -82,7 +82,7 @@ DISCORD_NOTIFY_MAX_PER_RUN=20
 Cloudflare Worker 側では以下を設定します。
 
 - Secret: `CRON_SECRET` (Vercel 側 `CRON_SECRET` と同じ値)
-- Var: `NOTIFY_API_URL` (例: `https://your-project.vercel.app/api/notify-discord`)
+- Secret: `NOTIFY_API_URL` (例: `https://your-project.vercel.app/api/notify-discord`)
 
 詳細手順は `cloudflare-worker/README.md` を参照してください。
 
