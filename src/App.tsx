@@ -21,6 +21,18 @@ const partLabels: Record<PartType, string> = {
   bridge: '艦橋',
 }
 
+const dateTimeWithoutSecondsFormat: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+}
+
+function formatDateTimeWithoutSeconds(value: Date | string): string {
+  return new Date(value).toLocaleString('ja-JP', dateTimeWithoutSecondsFormat)
+}
+
 function App() {
   const [data, setData] = useState<AppData>(() => loadAppData())
   const [view, setView] = useState<View>('dashboard')
@@ -421,7 +433,7 @@ function App() {
         <div className="hero-panel">
           <div className="status-badge">{saving ? '保存中...' : statusMessage}</div>
           <p>認証: {authUser ? `${authUser} でログイン中` : '未ログイン'}</p>
-          <p>現在時刻: {now.toLocaleString('ja-JP')}</p>
+          <p>現在時刻: {formatDateTimeWithoutSeconds(now)}</p>
           <div className="summary-row">
             {authUser ? (
               <button className="secondary-button btn-size-md" type="button" onClick={logout}>
@@ -475,7 +487,7 @@ function App() {
                         <p className="metric">
                           <span className="metric-label">帰港時刻</span>
                           <span className="metric-value">
-                            {summary.voyage ? new Date(summary.voyage.arrivalTime).toLocaleString('ja-JP') : '-'}
+                            {summary.voyage ? formatDateTimeWithoutSeconds(summary.voyage.arrivalTime) : '-'}
                           </span>
                         </p>
                         <p className="metric">
@@ -897,7 +909,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
         </label>
       </div>
       <p className="helper-text">
-        現在の登録: {currentVoyage ? new Date(currentVoyage.arrivalTime).toLocaleString('ja-JP') : '未登録'}
+        現在の登録: {currentVoyage ? formatDateTimeWithoutSeconds(currentVoyage.arrivalTime) : '未登録'}
       </p>
       <button className="primary-button departure-submit-button btn-size-lg" type="submit">
         出港登録

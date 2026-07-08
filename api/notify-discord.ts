@@ -32,6 +32,14 @@ type Route = {
   name: string
 }
 
+const dateTimeWithoutSecondsFormat: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+}
+
 type RepoFile<T> = {
   sha: string
   json: T
@@ -202,7 +210,7 @@ export default async function handler(req: RequestLike, res: ResponseLike): Prom
       const route = routesFile.json.find((item) => item.id === voyage.routeId)
       const shipName = ship ? `${ship.account} / ${ship.name}` : `shipId=${voyage.shipId}`
       const routeName = route?.name ?? voyage.routeId
-      const arrivedAt = new Date(voyage.arrivalTime).toLocaleString('ja-JP')
+      const arrivedAt = new Date(voyage.arrivalTime).toLocaleString('ja-JP', dateTimeWithoutSecondsFormat)
       return sanitizeDiscordText(`- ${shipName}: ${routeName} が帰港済みです (${arrivedAt})`)
     })
 
