@@ -24,9 +24,9 @@
     "baseDurationMinutes": 2144
   },
   {
-    "id": "TheSirensongSea_AB",
-    "name": "セイレーン海 AB",
-    "baseSpeed": 190,
-    "baseDurationMinutes": 1761
+    "id": "TheSirensongSea_ACB",
+    "name": "セイレーン海 ACB",
+    "baseSpeed": 191,
+    "baseDurationMinutes": 2223
   }
 ]
