@@ -61,12 +61,30 @@ Vercel 側で以下を設定します。
 - CRON_SECRET
 - DISCORD_NOTIFY_MAX_PER_RUN (任意。未設定時は 20)
 
-GitHub Actions (Repository Secrets) 側で以下を設定します。
+設定例:
 
-- NOTIFY_API_URL (例: `https://your-project.vercel.app/api/notify-discord`)
-- CRON_SECRET (Vercel 側 `CRON_SECRET` と同じ値)
+```dotenv
+GITHUB_TOKEN=github_pat_xxxxxxxxxxxxxxxxxxxx
+GITHUB_OWNER=your-github-owner
+GITHUB_REPO=your-repository-name
+GITHUB_BRANCH=main
+ALLOWED_ORIGINS=https://your-account.github.io
+GITHUB_CLIENT_ID=Ov23xxxxxxxxxxxxxx
+GITHUB_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+AUTH_REDIRECT_URI=https://your-project.vercel.app/api/auth-callback
+AUTH_JWT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ALLOWED_GITHUB_USERS=your-github-user
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/123456789012345678/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CRON_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+DISCORD_NOTIFY_MAX_PER_RUN=20
+```
 
-`NOTIFY_API_URL` は GitHub Actions 専用です。Vercel 側へは設定不要です。
+Cloudflare Worker 側では以下を設定します。
+
+- Secret: `CRON_SECRET` (Vercel 側 `CRON_SECRET` と同じ値)
+- Var: `NOTIFY_API_URL` (例: `https://your-project.vercel.app/api/notify-discord`)
+
+詳細手順は `cloudflare-worker/README.md` を参照してください。
 
 フロントエンド側では、GitHub Pages から Vercel Functions を呼ぶために以下を設定します。
 
@@ -74,6 +92,13 @@ GitHub Actions (Repository Secrets) 側で以下を設定します。
 - VITE_DATA_RAW_BASE_URL
 
 例: https://your-project.vercel.app
+
+設定例:
+
+```dotenv
+VITE_UPDATE_API_BASE_URL=https://your-project.vercel.app
+VITE_DATA_RAW_BASE_URL=https://raw.githubusercontent.com/your-github-owner/your-repository-name/main/data
+```
 
 `VITE_DATA_RAW_BASE_URL` には GitHub の raw URL を設定します。これにより、Pages を再ビルドしなくても、起動時に GitHub 上の最新 JSON を読み込めます。
 
@@ -119,15 +144,15 @@ GitHub Actions (Repository Secrets) 側で以下を設定します。
 - `data/voyage-data.json` の `notified=false` かつ `arrivalTime <= 現在時刻` を通知対象とします。
 - Discord 送信成功後にのみ `notified=true` へ更新し、重複通知を防ぎます。
 
-### スケジュール実行設定 (GitHub Actions)
+### スケジュール実行設定 (Cloudflare Workers Cron)
 
-Vercel Hobby の制限を避けるため、スケジュール実行は GitHub Actions で行います。
+スケジュール実行は Cloudflare Workers の Cron Trigger で行います。
 
-ワークフローは `.github/workflows/notify-discord.yml` で管理し、`2/5 * * * *` で `/api/notify-discord` を呼び出します。
+`cloudflare-worker/wrangler.toml` の `triggers.crons` で実行間隔を管理し、Worker から `/api/notify-discord` を呼び出します。
 
 `CRON_SECRET` は十分長いランダム文字列にし、定期的にローテーションしてください。
 
-設定後は Actions の `Discord Arrival Notify` を手動実行して、応答と通知結果を確認してください。
+設定後は Cloudflare Worker の Logs で応答と通知結果を確認してください。
 
 ### セキュリティ注意点
 
