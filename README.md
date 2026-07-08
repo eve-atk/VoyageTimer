@@ -61,10 +61,35 @@ Vercel 側で以下を設定します。
 - CRON_SECRET
 - DISCORD_NOTIFY_MAX_PER_RUN (任意。未設定時は 20)
 
+設定例:
+
+```dotenv
+GITHUB_TOKEN=github_pat_xxxxxxxxxxxxxxxxxxxx
+GITHUB_OWNER=your-github-owner
+GITHUB_REPO=your-repository-name
+GITHUB_BRANCH=main
+ALLOWED_ORIGINS=https://your-account.github.io
+GITHUB_CLIENT_ID=Ov23xxxxxxxxxxxxxx
+GITHUB_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+AUTH_REDIRECT_URI=https://your-project.vercel.app/api/auth-callback
+AUTH_JWT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ALLOWED_GITHUB_USERS=your-github-user
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/123456789012345678/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CRON_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+DISCORD_NOTIFY_MAX_PER_RUN=20
+```
+
 GitHub Actions (Repository Secrets) 側で以下を設定します。
 
 - NOTIFY_API_URL (例: `https://your-project.vercel.app/api/notify-discord`)
 - CRON_SECRET (Vercel 側 `CRON_SECRET` と同じ値)
+
+設定例:
+
+```text
+NOTIFY_API_URL=https://your-project.vercel.app/api/notify-discord
+CRON_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
 
 `NOTIFY_API_URL` は GitHub Actions 専用です。Vercel 側へは設定不要です。
 
@@ -74,6 +99,13 @@ GitHub Actions (Repository Secrets) 側で以下を設定します。
 - VITE_DATA_RAW_BASE_URL
 
 例: https://your-project.vercel.app
+
+設定例:
+
+```dotenv
+VITE_UPDATE_API_BASE_URL=https://your-project.vercel.app
+VITE_DATA_RAW_BASE_URL=https://raw.githubusercontent.com/your-github-owner/your-repository-name/main/data
+```
 
 `VITE_DATA_RAW_BASE_URL` には GitHub の raw URL を設定します。これにより、Pages を再ビルドしなくても、起動時に GitHub 上の最新 JSON を読み込めます。
 
