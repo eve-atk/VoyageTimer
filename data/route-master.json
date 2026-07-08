@@ -1,20 +1,32 @@
 [
   {
-    "id": "oj",
-    "name": "0-J",
-    "baseSpeed": 166,
-    "baseDurationMinutes": 1463
+    "id": "SeaofAsh_MN",
+    "name": "灰海 MN",
+    "baseSpeed": 260,
+    "baseDurationMinutes": 1227
   },
   {
-    "id": "ow",
-    "name": "0-W",
-    "baseSpeed": 185,
-    "baseDurationMinutes": 1320
+    "id": "DeepSea_MROJZ",
+    "name": "溺沈海 MROJZ",
+    "baseSpeed": 270,
+    "baseDurationMinutes": 2023
   },
   {
-    "id": "qs",
-    "name": "Q-S",
-    "baseSpeed": 210,
-    "baseDurationMinutes": 1180
+    "id": "SeaofJade_PMN",
+    "name": "翠浪海 PMN",
+    "baseSpeed": 190,
+    "baseDurationMinutes": 2097
+  },
+  {
+    "id": "SeaofJade_PNR",
+    "name": "翠浪海 PNR",
+    "baseSpeed": 190,
+    "baseDurationMinutes": 2144
+  },
+  {
+    "id": "TheSirensongSea_AB",
+    "name": "セイレーン海 AB",
+    "baseSpeed": 190,
+    "baseDurationMinutes": 1761
   }
 ]
