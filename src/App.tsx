@@ -378,14 +378,14 @@ function App() {
             {Object.entries(groupedSummaries).map(([account, summaries]) => (
               <div key={account} className="stack-gap">
                 <div className="section-header">
-                  <h2>{account}</h2>
+                  <h2 className="account-heading">{account}</h2>
                   <span>{summaries.length}隻</span>
                 </div>
                 <div className="summary-grid">
                   {summaries.map((summary) => (
                     <article key={summary.ship.id} className={summary.hasArrived ? 'summary-card is-arrived' : 'summary-card'}>
                       <div className="summary-row">
-                        <h3>{summary.ship.name}</h3>
+                        <h3 className="ship-name">{summary.ship.name}</h3>
                         <span className="pill">Rank {summary.ship.rank}</span>
                       </div>
                       <p>現在航路: {summary.route?.name ?? '未出港'}</p>
@@ -536,7 +536,7 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
       }}
     >
       <div className="section-header">
-        <h3>{ship.name}</h3>
+        <h3 className="ship-name">{ship.name}</h3>
         <div className="summary-row">
           <span>{ship.account}</span>
           <button className="secondary-button" type="button" onClick={onMoveUp} disabled={!canMoveUp}>
@@ -641,7 +641,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
       }}
     >
       <div className="section-header">
-        <h3>{ship.name}</h3>
+        <h3 className="ship-name">{ship.name}</h3>
         <span>前回航路: {ship.lastRouteId}</span>
       </div>
       <div className="form-grid">
