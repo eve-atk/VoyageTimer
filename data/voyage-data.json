@@ -47,5 +47,12 @@
     "departureTime": "2026-07-09T02:52:00.000Z",
     "arrivalTime": "2026-07-10T14:36:00.000Z",
     "notified": false
+  },
+  {
+    "shipId": 7,
+    "routeId": "SeaofJade_PMN",
+    "departureTime": "2026-07-09T15:24:00.000Z",
+    "arrivalTime": "2026-07-11T03:06:00.000Z",
+    "notified": false
   }
 ]
