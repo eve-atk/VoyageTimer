@@ -22,10 +22,10 @@
   },
   {
     "shipId": 5,
-    "routeId": "SeaofJade_PNR",
-    "departureTime": "2026-07-10T03:00:00.000Z",
-    "arrivalTime": "2026-07-11T14:44:00.000Z",
-    "notified": true
+    "routeId": "TheSirensongSea_ACB",
+    "departureTime": "2026-07-11T17:45:00.000Z",
+    "arrivalTime": "2026-07-13T07:00:00.000Z",
+    "notified": false
   },
   {
     "shipId": 8,
