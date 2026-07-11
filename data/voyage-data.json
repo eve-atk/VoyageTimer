@@ -50,9 +50,9 @@
   },
   {
     "shipId": 7,
-    "routeId": "SeaofJade_PMN",
-    "departureTime": "2026-07-09T15:24:00.000Z",
-    "arrivalTime": "2026-07-11T03:06:00.000Z",
+    "routeId": "SeaofJade_PNR",
+    "departureTime": "2026-07-11T02:52:00.000Z",
+    "arrivalTime": "2026-07-12T15:22:00.000Z",
     "notified": false
   }
 ]
