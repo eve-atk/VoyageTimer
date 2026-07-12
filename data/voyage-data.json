@@ -2,16 +2,16 @@
   {
     "shipId": 1,
     "routeId": "SeaofAsh_MN",
-    "departureTime": "2026-07-12T01:12:00.000Z",
-    "arrivalTime": "2026-07-12T21:39:00.000Z",
-    "notified": false
+    "departureTime": "2026-07-11T02:44:00.000Z",
+    "arrivalTime": "2026-07-11T23:11:00.000Z",
+    "notified": true
   },
   {
     "shipId": 3,
     "routeId": "DeepSea_MROJZ",
-    "departureTime": "2026-07-10T09:46:00.000Z",
-    "arrivalTime": "2026-07-11T19:29:00.000Z",
-    "notified": true
+    "departureTime": "2026-07-12T01:12:00.000Z",
+    "arrivalTime": "2026-07-13T10:55:00.000Z",
+    "notified": false
   },
   {
     "shipId": 4,
