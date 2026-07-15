@@ -53,6 +53,6 @@
     "routeId": "SeaofJade_PNR",
     "departureTime": "2026-07-14T04:02:00.000Z",
     "arrivalTime": "2026-07-15T15:46:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
