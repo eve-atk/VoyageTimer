@@ -12,18 +12,6 @@
     "baseDurationMinutes": 1227
   },
   {
-    "id": "SeaofJade_PMN",
-    "name": "翠浪海 PMN",
-    "baseSpeed": 190,
-    "baseDurationMinutes": 2097
-  },
-  {
-    "id": "SeaofJade_PNR",
-    "name": "翠浪海 PNR",
-    "baseSpeed": 190,
-    "baseDurationMinutes": 2144
-  },
-  {
     "id": "TheSirensongSea_ABE",
     "name": "セイレーン海 ABE",
     "baseSpeed": 193,
