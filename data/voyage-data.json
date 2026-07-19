@@ -2,9 +2,9 @@
   {
     "shipId": 1,
     "routeId": "SeaofAsh_MN",
-    "departureTime": "2026-07-18T04:58:00.000Z",
-    "arrivalTime": "2026-07-19T01:25:00.000Z",
-    "notified": true
+    "departureTime": "2026-07-19T04:52:00.000Z",
+    "arrivalTime": "2026-07-20T01:19:00.000Z",
+    "notified": false
   },
   {
     "shipId": 3,
