@@ -30,6 +30,12 @@
     "baseDurationMinutes": 2209
   },
   {
+    "id": "TheSirensongSea_ADG",
+    "name": "セイレーン海 ADG",
+    "baseSpeed": 196,
+    "baseDurationMinutes": 2345
+  },
+  {
     "id": "TheSirensongSea_FG",
     "name": "セイレーン海 FG",
     "baseSpeed": 195,
