@@ -24,6 +24,12 @@
     "baseDurationMinutes": 2223
   },
   {
+    "id": "TheSirensongSea_ACD",
+    "name": "セイレーン海 ACD",
+    "baseSpeed": 191,
+    "baseDurationMinutes": 2201
+  },
+  {
     "id": "TheSirensongSea_ACF",
     "name": "セイレーン海 ACF",
     "baseSpeed": 193,
