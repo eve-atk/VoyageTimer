@@ -18,7 +18,7 @@
     "routeId": "TheSirensongSea_ADG",
     "departureTime": "2026-07-22T11:14:00.000Z",
     "arrivalTime": "2026-07-24T02:19:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 5,
