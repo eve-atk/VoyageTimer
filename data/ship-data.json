@@ -68,7 +68,7 @@
     "id": 5,
     "account": "サブ",
     "name": "2号艦",
-    "rank": 94,
+    "rank": 95,
     "parts": {
       "hull": "hull_coelacanth_mod",
       "stern": "stern_shark_mod",
@@ -94,7 +94,7 @@
     "id": 7,
     "account": "サブ",
     "name": "4号艦",
-    "rank": 91,
+    "rank": 92,
     "parts": {
       "hull": "hull_coelacanth_mod",
       "stern": "stern_shark_mod",
