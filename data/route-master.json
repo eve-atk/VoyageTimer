@@ -46,5 +46,17 @@
     "name": "セイレーン海 FG",
     "baseSpeed": 195,
     "baseDurationMinutes": 1924
+  },
+  {
+    "id": "TheSirensongSea_HG",
+    "name": "セイレーン海 HG",
+    "baseSpeed": 196,
+    "baseDurationMinutes": 1931
+  },
+  {
+    "id": "TheSirensongSea_JK",
+    "name": "セイレーン海 JK",
+    "baseSpeed": 198,
+    "baseDurationMinutes": 1875
   }
 ]
