@@ -53,6 +53,6 @@
     "routeId": "TheSirensongSea_ACF",
     "departureTime": "2026-07-29T14:45:00.000Z",
     "arrivalTime": "2026-07-31T03:11:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
