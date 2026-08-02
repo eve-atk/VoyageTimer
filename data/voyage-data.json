@@ -50,9 +50,9 @@
   },
   {
     "shipId": 7,
-    "routeId": "TheSirensongSea_ACF",
-    "departureTime": "2026-07-31T10:04:00.000Z",
-    "arrivalTime": "2026-08-01T22:30:00.000Z",
-    "notified": true
+    "routeId": "TheSirensongSea_FG",
+    "departureTime": "2026-08-02T04:17:00.000Z",
+    "arrivalTime": "2026-08-03T12:21:00.000Z",
+    "notified": false
   }
 ]
