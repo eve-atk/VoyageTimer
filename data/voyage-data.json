@@ -25,7 +25,7 @@
     "routeId": "TheSirensongSea_JK",
     "departureTime": "2026-08-01T01:39:00.000Z",
     "arrivalTime": "2026-08-02T08:54:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 8,
