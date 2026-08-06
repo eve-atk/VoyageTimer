@@ -82,5 +82,11 @@
     "name": "セイレーン海 LJM",
     "baseSpeed": 200,
     "baseDurationMinutes": 2450
+  },
+  {
+    "id": "TheSirensongSea_LON",
+    "name": "セイレーン海 LON",
+    "baseSpeed": 202,
+    "baseDurationMinutes": 2422
   }
 ]
