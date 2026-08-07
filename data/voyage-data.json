@@ -53,6 +53,6 @@
     "routeId": "TheSirensongSea_HI",
     "departureTime": "2026-08-06T02:57:00.000Z",
     "arrivalTime": "2026-08-07T10:47:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
