@@ -88,5 +88,11 @@
     "name": "セイレーン海 LON",
     "baseSpeed": 202,
     "baseDurationMinutes": 2422
+  },
+  {
+    "id": "TheSirensongSea_PLO",
+    "name": "セイレーン海 PLO",
+    "baseSpeed": 204,
+    "baseDurationMinutes": 2303
   }
 ]
