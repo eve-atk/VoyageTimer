@@ -53,6 +53,6 @@
     "routeId": "TheSirensongSea_LFJ",
     "departureTime": "2026-08-12T12:45:00.000Z",
     "arrivalTime": "2026-08-14T02:04:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
