@@ -12,66 +12,6 @@
     "baseDurationMinutes": 1227
   },
   {
-    "id": "TheSirensongSea_ABE",
-    "name": "セイレーン海 ABE",
-    "baseSpeed": 193,
-    "baseDurationMinutes": 2229
-  },
-  {
-    "id": "TheSirensongSea_ACB",
-    "name": "セイレーン海 ACB",
-    "baseSpeed": 191,
-    "baseDurationMinutes": 2223
-  },
-  {
-    "id": "TheSirensongSea_ACD",
-    "name": "セイレーン海 ACD",
-    "baseSpeed": 191,
-    "baseDurationMinutes": 2201
-  },
-  {
-    "id": "TheSirensongSea_ACF",
-    "name": "セイレーン海 ACF",
-    "baseSpeed": 193,
-    "baseDurationMinutes": 2209
-  },
-  {
-    "id": "TheSirensongSea_ADG",
-    "name": "セイレーン海 ADG",
-    "baseSpeed": 196,
-    "baseDurationMinutes": 2345
-  },
-  {
-    "id": "TheSirensongSea_FG",
-    "name": "セイレーン海 FG",
-    "baseSpeed": 195,
-    "baseDurationMinutes": 1924
-  },
-  {
-    "id": "TheSirensongSea_HG",
-    "name": "セイレーン海 HG",
-    "baseSpeed": 196,
-    "baseDurationMinutes": 1931
-  },
-  {
-    "id": "TheSirensongSea_HI",
-    "name": "セイレーン海 HI",
-    "baseSpeed": 196,
-    "baseDurationMinutes": 1900
-  },
-  {
-    "id": "TheSirensongSea_JI",
-    "name": "セイレーン海 JI",
-    "baseSpeed": 196,
-    "baseDurationMinutes": 1908
-  },
-  {
-    "id": "TheSirensongSea_JK",
-    "name": "セイレーン海 JK",
-    "baseSpeed": 198,
-    "baseDurationMinutes": 1875
-  },
-  {
     "id": "TheSirensongSea_LFJ",
     "name": "セイレーン海 LFJ",
     "baseSpeed": 198,
