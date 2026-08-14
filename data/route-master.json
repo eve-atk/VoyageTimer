@@ -96,6 +96,12 @@
     "baseDurationMinutes": 2303
   },
   {
+    "id": "TheSirensongSea_POQ",
+    "name": "セイレーン海 POQ",
+    "baseSpeed": 206,
+    "baseDurationMinutes": 2435
+  },
+  {
     "id": "TheSirensongSea_PRN",
     "name": "セイレーン海 PRN",
     "baseSpeed": 208,
