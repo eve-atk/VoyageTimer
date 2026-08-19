@@ -25,7 +25,7 @@
     "routeId": "TheSirensongSea_PRN",
     "departureTime": "2026-08-18T03:12:00.000Z",
     "arrivalTime": "2026-08-19T18:24:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 8,
@@ -46,7 +46,7 @@
     "routeId": "TheSirensongSea_PRN",
     "departureTime": "2026-08-18T03:12:00.000Z",
     "arrivalTime": "2026-08-19T18:24:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 7,
