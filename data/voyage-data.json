@@ -15,10 +15,10 @@
   },
   {
     "shipId": 4,
-    "routeId": "SeaofAsh_MN",
-    "departureTime": "2026-08-21T16:10:00.000Z",
-    "arrivalTime": "2026-08-22T17:29:00.000Z",
-    "notified": true
+    "routeId": "TheLilacSea_BDA",
+    "departureTime": "2026-08-23T05:40:00.000Z",
+    "arrivalTime": "2026-08-24T19:22:00.000Z",
+    "notified": false
   },
   {
     "shipId": 5,
