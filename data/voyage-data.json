@@ -53,6 +53,6 @@
     "routeId": "TheSirensongSea_PLO",
     "departureTime": "2026-08-21T16:10:00.000Z",
     "arrivalTime": "2026-08-23T06:33:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
