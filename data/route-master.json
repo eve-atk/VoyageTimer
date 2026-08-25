@@ -18,6 +18,12 @@
     "baseDurationMinutes": 2328
   },
   {
+    "id": "TheLilacSea_BCE",
+    "name": "紫礁海 BCE",
+    "baseSpeed": 207,
+    "baseDurationMinutes": 2279
+  },
+  {
     "id": "TheLilacSea_BDA",
     "name": "紫礁海 BDA",
     "baseSpeed": 206,
