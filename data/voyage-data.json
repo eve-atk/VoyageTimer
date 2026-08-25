@@ -37,9 +37,9 @@
   {
     "shipId": 9,
     "routeId": "DeepSea_MROJZ",
-    "departureTime": "2026-08-24T00:30:00.000Z",
-    "arrivalTime": "2026-08-25T10:13:00.000Z",
-    "notified": true
+    "departureTime": "2026-08-25T13:00:00.000Z",
+    "arrivalTime": "2026-08-26T22:43:00.000Z",
+    "notified": false
   },
   {
     "shipId": 6,
