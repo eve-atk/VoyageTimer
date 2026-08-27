@@ -14,8 +14,8 @@
   {
     "id": "TheLilacSea_BCA",
     "name": "紫礁海 BCA",
-    "baseSpeed": 205,
-    "baseDurationMinutes": 2328
+    "baseSpeed": 213,
+    "baseDurationMinutes": 2365
   },
   {
     "id": "TheLilacSea_BCE",
@@ -26,8 +26,8 @@
   {
     "id": "TheLilacSea_BDA",
     "name": "紫礁海 BDA",
-    "baseSpeed": 206,
-    "baseDurationMinutes": 2317
+    "baseSpeed": 213,
+    "baseDurationMinutes": 2302
   },
   {
     "id": "TheSirensongSea_LFJ",
