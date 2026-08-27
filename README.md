@@ -140,7 +140,8 @@ VITE_DATA_RAW_BASE_URL=https://raw.githubusercontent.com/your-github-owner/your-
 - フロントエンドは localStorage に即時保存します。
 - `VITE_DATA_RAW_BASE_URL` が設定されている場合、起動時に GitHub の raw JSON を読み込み、最新データを表示します。
 - `VITE_DATA_RAW_BASE_URL` が未設定の場合は、バンドル済み初期データと localStorage の内容で動作します。
-- その後、/api/update-data に POST して GitHub リポジトリ内の JSON 更新を試みます。
+- 画面上の「変更を保存」を押したときに、/api/update-data へ POST して GitHub リポジトリ内の JSON 更新を試みます。
+- 出港登録は下書きとしてローカルに反映され、連続登録後にまとめて保存できます。
 - API は GitHub Contents API を利用して `data/*.json` の取得・差分判定・更新を行います。
 
 ## Discord 通知 (単一Webhook + 5分Cron + 重複防止)
