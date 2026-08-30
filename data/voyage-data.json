@@ -29,10 +29,10 @@
   },
   {
     "shipId": 7,
-    "routeId": "TheSirensongSea_PRN",
-    "departureTime": "2026-08-28T15:15:00.000Z",
-    "arrivalTime": "2026-08-30T06:27:00.000Z",
-    "notified": true
+    "routeId": "TheLilacSea_BCA",
+    "departureTime": "2026-08-30T11:30:00.000Z",
+    "arrivalTime": "2026-09-01T03:52:00.000Z",
+    "notified": false
   },
   {
     "shipId": 4,
