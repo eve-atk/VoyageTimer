@@ -134,6 +134,17 @@ function App() {
     }, {})
   }, [voyageSummaries])
 
+  const groupedShips = useMemo(() => {
+    return data.ships.reduce<Record<string, Ship[]>>((groups, ship) => {
+      const key = ship.account
+      if (!groups[key]) {
+        groups[key] = []
+      }
+      groups[key].push(ship)
+      return groups
+    }, {})
+  }, [data.ships])
+
   async function persist(nextData: AppData, message: string) {
     setData(nextData)
     setStatusMessage(message)
@@ -619,14 +630,22 @@ function App() {
               </button>
               {hasUnsavedChanges && <span className="helper-text">未保存の変更があります。</span>}
             </div>
-            {data.ships.map((ship) => (
-              <DepartureEditor
-                key={ship.id}
-                ship={ship}
-                routes={data.routes}
-                currentVoyage={voyagesByShipId.get(ship.id)}
-                onSubmit={registerDeparture}
-              />
+            {Object.entries(groupedShips).map(([account, ships]) => (
+              <div key={account} className="stack-gap">
+                <div className="section-header">
+                  <h3 className="account-heading">{account}</h3>
+                  <span>{ships.length}隻</span>
+                </div>
+                {ships.map((ship) => (
+                  <DepartureEditor
+                    key={ship.id}
+                    ship={ship}
+                    routes={data.routes}
+                    currentVoyage={voyagesByShipId.get(ship.id)}
+                    onSubmit={registerDeparture}
+                  />
+                ))}
+              </div>
             ))}
           </section>
         )}
