@@ -398,13 +398,6 @@ function App() {
   }
 
   function redepartFromDashboard(ship: Ship) {
-    const route = data.routes.find((item) => item.id === ship.lastRouteId)
-    const routeLabel = route?.name ?? ship.lastRouteId
-    const ok = window.confirm(`${ship.name} を前回航路 (${routeLabel}) で再出港登録します。よろしいですか？`)
-    if (!ok) {
-      return
-    }
-
     registerDeparture(ship.id, ship.lastRouteId, new Date().toISOString())
   }
 
@@ -498,6 +491,18 @@ function App() {
       <main className="content-grid">
         {view === 'dashboard' && (
           <section className="panel stack-gap">
+            {hasUnsavedChanges && (
+              <div className="summary-row ship-save-bar is-dirty">
+                <button
+                  className="primary-button ship-settings-save-button btn-size-lg"
+                  type="button"
+                  onClick={saveChanges}
+                >
+                  変更を保存
+                </button>
+                <span className="helper-text">未保存の変更があります。</span>
+              </div>
+            )}
             {Object.entries(groupedSummaries).map(([account, summaries]) => (
               <div key={account} className="stack-gap">
                 <div className="section-header">
