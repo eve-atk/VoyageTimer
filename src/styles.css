@@ -19,6 +19,8 @@
   --status-to: #1cbfe3;
   --action-from: #df6f2d;
   --action-to: #ff9e5b;
+  --departed-border: rgba(255, 162, 74, 0.72);
+  --departed-ring: rgba(255, 162, 74, 0.14);
   --secondary-bg: #1e3346;
   --secondary-fg: #d8ecff;
   --input-bg: rgba(8, 16, 24, 0.92);
@@ -63,6 +65,8 @@
     --status-to: #1f9fb7;
     --action-from: #8f4f20;
     --action-to: #cb7c3f;
+    --departed-border: rgba(203, 124, 63, 0.72);
+    --departed-ring: rgba(203, 124, 63, 0.12);
     --secondary-bg: #d6e9ee;
     --secondary-fg: #11414b;
     --input-bg: rgba(255, 255, 255, 0.92);
@@ -336,6 +340,12 @@ textarea:focus-visible {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
+.editor-card.is-not-departed,
+.summary-card.is-not-departed {
+  border-color: var(--departed-border);
+  box-shadow: 0 0 0 1px var(--departed-ring), var(--shadow);
+}
+
 .ship-editor-actions {
   margin-top: 8px;
 }
@@ -553,6 +563,11 @@ button:disabled {
   .ship-save-bar.is-dirty {
     top: 8px;
     padding: 8px 10px;
+  }
+
+  .editor-card.is-not-departed,
+  .summary-card.is-not-departed {
+    box-shadow: 0 0 0 1px var(--departed-ring), var(--shadow);
   }
 }
 

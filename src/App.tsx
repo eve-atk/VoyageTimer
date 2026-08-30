@@ -484,7 +484,16 @@ function App() {
                 </div>
                 <div className="summary-grid">
                   {summaries.map((summary) => (
-                    <article key={summary.ship.id} className={summary.hasArrived ? 'summary-card is-arrived' : 'summary-card'}>
+                    <article
+                      key={summary.ship.id}
+                      className={
+                        !summary.voyage
+                          ? 'summary-card is-not-departed'
+                          : summary.hasArrived
+                            ? 'summary-card is-arrived'
+                            : 'summary-card'
+                      }
+                    >
                       <div className="summary-row">
                         <h3 className="ship-name">{summary.ship.name}</h3>
                         <span className="pill">Rank {summary.ship.rank}</span>
@@ -894,7 +903,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
 
   return (
     <form
-      className="editor-card"
+      className={currentVoyage ? 'editor-card' : 'editor-card is-not-departed'}
       onSubmit={(event) => {
         event.preventDefault()
         onSubmit(ship.id, routeId, new Date(departureTime).toISOString())
