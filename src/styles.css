@@ -488,6 +488,24 @@ textarea {
   gap: 10px;
 }
 
+.summary-card-head {
+  min-height: var(--btn-min-h-sm);
+}
+
+.summary-card-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-height: var(--btn-min-h-sm);
+}
+
+.redepart-button {
+  width: auto;
+  white-space: nowrap;
+}
+
 .summary-card .pill {
   font-size: 0.78rem;
   padding: 4px 9px;
@@ -554,6 +572,10 @@ button:disabled {
   .secondary-button {
     width: 100%;
     justify-content: center;
+  }
+
+  .summary-card .redepart-button {
+    width: auto;
   }
 
   .ship-create-form .primary-button {

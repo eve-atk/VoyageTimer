@@ -386,6 +386,17 @@ function App() {
     setStatusMessage(`${ship.name} を ${route.name} に出港登録しました。保存してください。`)
   }
 
+  function redepartFromDashboard(ship: Ship) {
+    const route = data.routes.find((item) => item.id === ship.lastRouteId)
+    const routeLabel = route?.name ?? ship.lastRouteId
+    const ok = window.confirm(`${ship.name} を前回航路 (${routeLabel}) で再出港登録します。よろしいですか？`)
+    if (!ok) {
+      return
+    }
+
+    registerDeparture(ship.id, ship.lastRouteId, new Date().toISOString())
+  }
+
   function startLogin() {
     if (!confirmNavigation(view)) {
       return
@@ -494,9 +505,20 @@ function App() {
                             : 'summary-card'
                       }
                     >
-                      <div className="summary-row">
+                      <div className="summary-row summary-card-head">
                         <h3 className="ship-name">{summary.ship.name}</h3>
-                        <span className="pill">Rank {summary.ship.rank}</span>
+                        <div className="summary-card-actions">
+                          <span className="pill">Rank {summary.ship.rank}</span>
+                          {summary.hasArrived && (
+                            <button
+                              className="secondary-button btn-size-sm redepart-button"
+                              type="button"
+                              onClick={() => redepartFromDashboard(summary.ship)}
+                            >
+                              再出港
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="summary-metrics">
                         <p className="metric metric-emphasis">{formatRemainingMinutes(summary.remainingMinutes)}</p>
