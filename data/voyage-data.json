@@ -39,20 +39,20 @@
     "routeId": "TheLilacSea_BCE",
     "departureTime": "2026-08-28T15:15:00.000Z",
     "arrivalTime": "2026-08-30T04:53:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 5,
     "routeId": "TheLilacSea_BCE",
     "departureTime": "2026-08-28T15:15:00.000Z",
     "arrivalTime": "2026-08-30T04:53:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 6,
     "routeId": "TheLilacSea_BCE",
     "departureTime": "2026-08-28T15:15:00.000Z",
     "arrivalTime": "2026-08-30T04:53:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
