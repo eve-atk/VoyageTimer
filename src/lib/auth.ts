@@ -1,6 +1,48 @@
 const TOKEN_KEY = 'ff14-submarine-manager-auth-token'
 const USER_KEY = 'ff14-submarine-manager-auth-user'
 
+type JwtPayload = {
+  exp?: number
+}
+
+function decodeBase64Url(input: string): string {
+  const normalized = input.replace(/-/g, '+').replace(/_/g, '/')
+  const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4)
+  return window.atob(padded)
+}
+
+function readTokenExpiration(token: string): number | null {
+  const parts = token.split('.')
+  if (parts.length !== 3) {
+    return null
+  }
+
+  try {
+    const payload = JSON.parse(decodeBase64Url(parts[1])) as JwtPayload
+    if (typeof payload.exp !== 'number' || !Number.isFinite(payload.exp)) {
+      return null
+    }
+
+    return payload.exp
+  } catch {
+    return null
+  }
+}
+
+export function isStoredAuthTokenExpired(nowInSeconds = Math.floor(Date.now() / 1000)): boolean {
+  const token = getStoredAuthToken()
+  if (!token) {
+    return true
+  }
+
+  const exp = readTokenExpiration(token)
+  if (!exp) {
+    return true
+  }
+
+  return nowInSeconds >= exp
+}
+
 function getApiBaseUrl(): string {
   const baseUrl = import.meta.env.VITE_UPDATE_API_BASE_URL as string | undefined
   if (!baseUrl) {
@@ -60,6 +102,11 @@ export async function fetchAuthSession(): Promise<{ user?: string; isAuthenticat
   const localToken = getStoredAuthToken()
   const localUser = getStoredAuthUser()
   if (localToken && localUser) {
+    if (isStoredAuthTokenExpired()) {
+      clearAuthSession()
+      return { isAuthenticated: false }
+    }
+
     return { isAuthenticated: true, user: localUser }
   }
 

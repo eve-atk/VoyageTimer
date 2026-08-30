@@ -120,6 +120,7 @@ VITE_DATA_RAW_BASE_URL=https://raw.githubusercontent.com/your-github-owner/your-
 - `/api/session` で認証状態を取得できます。
 - `/api/logout` で `auth_token` cookie を破棄してログアウトできます。
 - `ALLOWED_GITHUB_USERS` に含まれない GitHub ユーザーは更新できません。
+- 認証トークンの有効期限が切れた場合、フロントエンドは自動的に未ログイン状態へ戻し、再ログインが必要であることを表示します。
 
 ### GitHub OAuth App の設定
 
