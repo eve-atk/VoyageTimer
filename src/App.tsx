@@ -39,6 +39,7 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('初期データを読み込みました。')
   const [saving, setSaving] = useState(false)
   const [shipSettingsDirty, setShipSettingsDirty] = useState(false)
+  const [departureDirty, setDepartureDirty] = useState(false)
   const [now, setNow] = useState(() => new Date())
   const [authUser, setAuthUser] = useState<string | null>(null)
   const committedDataRef = useRef<AppData>(loadAppData())
@@ -71,6 +72,7 @@ function App() {
       setData(remoteData)
       committedDataRef.current = remoteData
       setShipSettingsDirty(false)
+      setDepartureDirty(false)
     })
 
     return () => {
@@ -90,17 +92,18 @@ function App() {
     saveAppData(data)
   }, [data])
 
-  function discardShipSettingsChanges() {
+  function discardUnsavedChanges() {
     setData(committedDataRef.current)
     setShipSettingsDirty(false)
-    setStatusMessage('未保存の潜水艦設定変更を破棄しました。')
+    setDepartureDirty(false)
+    setStatusMessage('未保存の変更を破棄しました。')
   }
 
-  const hasUnsavedShipChanges = shipSettingsDirty
+  const hasUnsavedChanges = shipSettingsDirty || departureDirty
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!hasUnsavedShipChanges) {
+      if (!hasUnsavedChanges) {
         return
       }
 
@@ -110,7 +113,7 @@ function App() {
 
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [hasUnsavedShipChanges])
+  }, [hasUnsavedChanges])
 
   const voyagesByShipId = useMemo(() => {
     return new Map(data.voyages.map((voyage) => [voyage.shipId, voyage]))
@@ -131,6 +134,17 @@ function App() {
     }, {})
   }, [voyageSummaries])
 
+  const groupedShips = useMemo(() => {
+    return data.ships.reduce<Record<string, Ship[]>>((groups, ship) => {
+      const key = ship.account
+      if (!groups[key]) {
+        groups[key] = []
+      }
+      groups[key].push(ship)
+      return groups
+    }, {})
+  }, [data.ships])
+
   async function persist(nextData: AppData, message: string) {
     setData(nextData)
     setStatusMessage(message)
@@ -142,15 +156,16 @@ function App() {
     if (result.ok) {
       committedDataRef.current = nextData
       setShipSettingsDirty(false)
+      setDepartureDirty(false)
     }
   }
 
   function confirmNavigation(nextView: View): boolean {
-    if (!hasUnsavedShipChanges || nextView === view) {
+    if (!hasUnsavedChanges || nextView === view) {
       return true
     }
 
-    return window.confirm('潜水艦設定に未保存の変更があります。保存せずに移動しますか？')
+    return window.confirm('未保存の変更があります。保存せずに移動しますか？')
   }
 
   function navigateToView(nextView: View) {
@@ -158,8 +173,8 @@ function App() {
       return
     }
 
-    if (hasUnsavedShipChanges) {
-      discardShipSettingsChanges()
+    if (hasUnsavedChanges) {
+      discardUnsavedChanges()
     }
 
     setView(nextView)
@@ -173,13 +188,13 @@ function App() {
     setShipSettingsDirty(true)
   }
 
-  function saveShipSettings() {
-    if (!shipSettingsDirty) {
+  function saveChanges() {
+    if (!hasUnsavedChanges) {
       setStatusMessage('保存する変更はありません。')
       return
     }
 
-    void persist(data, '設定を保存しました。')
+    void persist(data, '変更を保存しました。')
   }
 
   function deleteShip(shipId: number) {
@@ -354,29 +369,43 @@ function App() {
       notified: false,
     }
 
-    const nextShips = data.ships.map((item) => {
-      if (item.id !== shipId) {
-        return item
-      }
+    setData((currentData) => {
+      const nextShips = currentData.ships.map((item) => {
+        if (item.id !== shipId) {
+          return item
+        }
+
+        return {
+          ...item,
+          lastRouteId: routeId,
+        }
+      })
+
+      const existing = currentData.voyages.some((item) => item.shipId === shipId)
+      const nextVoyages = existing
+        ? currentData.voyages.map((item) => (item.shipId === shipId ? voyage : item))
+        : [...currentData.voyages, voyage]
 
       return {
-        ...item,
-        lastRouteId: routeId,
+        ...currentData,
+        ships: nextShips,
+        voyages: nextVoyages,
       }
     })
 
-    const existing = data.voyages.some((item) => item.shipId === shipId)
-    const nextVoyages = existing
-      ? data.voyages.map((item) => (item.shipId === shipId ? voyage : item))
-      : [...data.voyages, voyage]
+    setDepartureDirty(true)
+    setStatusMessage(`${ship.name} を ${route.name} に出港登録しました。保存してください。`)
+  }
 
-    const nextData = {
-      ...data,
-      ships: nextShips,
-      voyages: nextVoyages,
+  function redepartFromDashboard(ship: Ship) {
+    const route = data.routes.find((item) => item.id === ship.lastRouteId)
+    const routeLabel = route?.name ?? ship.lastRouteId
+    const ok = window.confirm(`${ship.name} を前回航路 (${routeLabel}) で再出港登録します。よろしいですか？`)
+    if (!ok) {
+      return
     }
 
-    void persist(nextData, `${ship.name} を ${route.name} に出港登録しました。`)
+    registerDeparture(ship.id, ship.lastRouteId, new Date().toISOString())
   }
 
   function startLogin() {
@@ -384,8 +413,8 @@ function App() {
       return
     }
 
-    if (hasUnsavedShipChanges) {
-      discardShipSettingsChanges()
+    if (hasUnsavedChanges) {
+      discardUnsavedChanges()
     }
 
     window.location.href = getAuthStartUrl()
@@ -396,8 +425,8 @@ function App() {
       return
     }
 
-    if (hasUnsavedShipChanges) {
-      discardShipSettingsChanges()
+    if (hasUnsavedChanges) {
+      discardUnsavedChanges()
     }
 
     const currentAppUrl = getCurrentAppUrl()
@@ -477,10 +506,30 @@ function App() {
                 </div>
                 <div className="summary-grid">
                   {summaries.map((summary) => (
-                    <article key={summary.ship.id} className={summary.hasArrived ? 'summary-card is-arrived' : 'summary-card'}>
-                      <div className="summary-row">
+                    <article
+                      key={summary.ship.id}
+                      className={
+                        !summary.voyage
+                          ? 'summary-card is-not-departed'
+                          : summary.hasArrived
+                            ? 'summary-card is-arrived'
+                            : 'summary-card'
+                      }
+                    >
+                      <div className="summary-row summary-card-head">
                         <h3 className="ship-name">{summary.ship.name}</h3>
-                        <span className="pill">Rank {summary.ship.rank}</span>
+                        <div className="summary-card-actions">
+                          <span className="pill">Rank {summary.ship.rank}</span>
+                          {summary.hasArrived && (
+                            <button
+                              className="secondary-button btn-size-sm redepart-button"
+                              type="button"
+                              onClick={() => redepartFromDashboard(summary.ship)}
+                            >
+                              再出港
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="summary-metrics">
                         <p className="metric metric-emphasis">{formatRemainingMinutes(summary.remainingMinutes)}</p>
@@ -512,16 +561,16 @@ function App() {
             <div className="section-header">
               <h2>潜水艦設定</h2>
             </div>
-            <div className={hasUnsavedShipChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
+            <div className={hasUnsavedChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
               <button
                 className="primary-button ship-settings-save-button btn-size-lg"
                 type="button"
-                onClick={saveShipSettings}
-                disabled={!hasUnsavedShipChanges}
+                onClick={saveChanges}
+                disabled={!hasUnsavedChanges}
               >
-                設定を保存
+                変更を保存
               </button>
-              {hasUnsavedShipChanges && <span className="helper-text">未保存の変更があります。</span>}
+              {hasUnsavedChanges && <span className="helper-text">未保存の変更があります。</span>}
             </div>
             <ShipCreateForm ships={data.ships} onAdd={addShip} />
             {data.ships.map((ship, index) => (
@@ -529,7 +578,7 @@ function App() {
                 key={ship.id}
                 ship={ship}
                 parts={data.parts}
-                onSave={saveShipSettings}
+                onSave={saveChanges}
                 onDelete={deleteShip}
                 onMoveUp={() => moveShip(ship.id, 'up')}
                 onMoveDown={() => moveShip(ship.id, 'down')}
@@ -547,16 +596,16 @@ function App() {
               <h2>航路登録</h2>
               <span>航路の追加・削除</span>
             </div>
-            <div className={hasUnsavedShipChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
+            <div className={hasUnsavedChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
               <button
                 className="primary-button ship-settings-save-button btn-size-lg"
                 type="button"
-                onClick={saveShipSettings}
-                disabled={!hasUnsavedShipChanges}
+                onClick={saveChanges}
+                disabled={!hasUnsavedChanges}
               >
-                設定を保存
+                変更を保存
               </button>
-              {hasUnsavedShipChanges && <span className="helper-text">未保存の変更があります。</span>}
+              {hasUnsavedChanges && <span className="helper-text">未保存の変更があります。</span>}
             </div>
             <RouteCreateForm routes={data.routes} onAdd={addRoute} />
             {data.routes.map((route) => (
@@ -570,14 +619,33 @@ function App() {
             <div className="section-header">
               <h2>出港登録</h2>
             </div>
-            {data.ships.map((ship) => (
-              <DepartureEditor
-                key={ship.id}
-                ship={ship}
-                routes={data.routes}
-                currentVoyage={voyagesByShipId.get(ship.id)}
-                onSubmit={registerDeparture}
-              />
+            <div className={hasUnsavedChanges ? 'summary-row ship-save-bar is-dirty' : 'summary-row ship-save-bar'}>
+              <button
+                className="primary-button ship-settings-save-button btn-size-lg"
+                type="button"
+                onClick={saveChanges}
+                disabled={!hasUnsavedChanges}
+              >
+                変更を保存
+              </button>
+              {hasUnsavedChanges && <span className="helper-text">未保存の変更があります。</span>}
+            </div>
+            {Object.entries(groupedShips).map(([account, ships]) => (
+              <div key={account} className="stack-gap">
+                <div className="section-header">
+                  <h3 className="account-heading">{account}</h3>
+                  <span>{ships.length}隻</span>
+                </div>
+                {ships.map((ship) => (
+                  <DepartureEditor
+                    key={ship.id}
+                    ship={ship}
+                    routes={data.routes}
+                    currentVoyage={voyagesByShipId.get(ship.id)}
+                    onSubmit={registerDeparture}
+                  />
+                ))}
+              </div>
             ))}
           </section>
         )}
@@ -825,7 +893,7 @@ function ShipEditor({ ship, parts, onSave, onDelete, onMoveUp, onMoveDown, canMo
       </div>
       <div className="summary-row ship-editor-actions">
         <button className="primary-button btn-size-md" type="submit">
-          設定を保存
+          変更を保存
         </button>
         <button
           className="secondary-button btn-size-md"
@@ -876,7 +944,7 @@ function DepartureEditor({ ship, routes, currentVoyage, onSubmit }: DepartureEdi
 
   return (
     <form
-      className="editor-card"
+      className={currentVoyage ? 'editor-card' : 'editor-card is-not-departed'}
       onSubmit={(event) => {
         event.preventDefault()
         onSubmit(ship.id, routeId, new Date(departureTime).toISOString())
