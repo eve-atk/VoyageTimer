@@ -62,7 +62,7 @@
       "bow": "bow_unkiu_mod",
       "bridge": "bridge_whale_mod"
     },
-    "lastRouteId": "TheLilacSea_BCE"
+    "lastRouteId": "TheLilacSea_BEG"
   },
   {
     "id": 5,
@@ -101,6 +101,6 @@
       "bow": "bow_unkiu_mod",
       "bridge": "bridge_whale_mod"
     },
-    "lastRouteId": "TheLilacSea_BCA"
+    "lastRouteId": "TheLilacSea_BDA"
   }
 ]
