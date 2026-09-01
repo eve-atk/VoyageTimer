@@ -29,30 +29,30 @@
   },
   {
     "shipId": 7,
-    "routeId": "TheLilacSea_BCA",
-    "departureTime": "2026-08-30T11:30:00.000Z",
-    "arrivalTime": "2026-09-01T03:52:00.000Z",
+    "routeId": "TheLilacSea_BDA",
+    "departureTime": "2026-09-01T03:50:00.000Z",
+    "arrivalTime": "2026-09-02T18:34:00.000Z",
     "notified": false
   },
   {
     "shipId": 4,
-    "routeId": "TheLilacSea_BCE",
-    "departureTime": "2026-08-30T11:29:34.600Z",
-    "arrivalTime": "2026-09-01T01:07:34.600Z",
-    "notified": true
+    "routeId": "TheLilacSea_BEG",
+    "departureTime": "2026-09-01T03:50:00.000Z",
+    "arrivalTime": "2026-09-02T18:15:00.000Z",
+    "notified": false
   },
   {
     "shipId": 5,
     "routeId": "TheLilacSea_BCE",
-    "departureTime": "2026-08-30T11:30:17.680Z",
-    "arrivalTime": "2026-09-01T01:08:17.680Z",
-    "notified": true
+    "departureTime": "2026-09-01T03:50:00.000Z",
+    "arrivalTime": "2026-09-02T17:28:00.000Z",
+    "notified": false
   },
   {
     "shipId": 6,
     "routeId": "TheLilacSea_BCE",
-    "departureTime": "2026-08-30T11:30:25.448Z",
-    "arrivalTime": "2026-09-01T01:08:25.448Z",
-    "notified": true
+    "departureTime": "2026-09-01T03:50:00.000Z",
+    "arrivalTime": "2026-09-02T17:28:00.000Z",
+    "notified": false
   }
 ]
