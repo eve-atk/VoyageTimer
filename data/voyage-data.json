@@ -39,7 +39,7 @@
     "routeId": "TheLilacSea_BEG",
     "departureTime": "2026-09-01T03:50:00.000Z",
     "arrivalTime": "2026-09-02T18:15:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 5,
