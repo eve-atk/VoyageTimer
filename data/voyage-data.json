@@ -46,13 +46,13 @@
     "routeId": "TheLilacSea_EGH",
     "departureTime": "2026-09-06T06:09:00.000Z",
     "arrivalTime": "2026-09-07T20:59:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 6,
     "routeId": "TheLilacSea_EGH",
     "departureTime": "2026-09-06T06:09:00.000Z",
     "arrivalTime": "2026-09-07T20:59:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
