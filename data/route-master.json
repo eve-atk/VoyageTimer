@@ -42,6 +42,12 @@
     "baseDurationMinutes": 2330
   },
   {
+    "id": "TheLilacSea_JGH",
+    "name": "紫礁海 JGH",
+    "baseSpeed": 218,
+    "baseDurationMinutes": 2403
+  },
+  {
     "id": "TheSirensongSea_LFJ",
     "name": "セイレーン海 LFJ",
     "baseSpeed": 198,
