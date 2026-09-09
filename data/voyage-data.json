@@ -39,20 +39,20 @@
     "routeId": "TheLilacSea_JGH",
     "departureTime": "2026-09-08T05:28:00.000Z",
     "arrivalTime": "2026-09-09T21:31:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 5,
     "routeId": "TheLilacSea_JGH",
     "departureTime": "2026-09-08T05:28:00.000Z",
     "arrivalTime": "2026-09-09T21:31:00.000Z",
-    "notified": false
+    "notified": true
   },
   {
     "shipId": 6,
     "routeId": "TheLilacSea_JGH",
     "departureTime": "2026-09-08T05:28:00.000Z",
     "arrivalTime": "2026-09-09T21:31:00.000Z",
-    "notified": false
+    "notified": true
   }
 ]
