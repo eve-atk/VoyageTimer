@@ -2,30 +2,30 @@
   {
     "shipId": 1,
     "routeId": "SeaofAsh_MN",
-    "departureTime": "2026-09-13T10:30:59.108Z",
-    "arrivalTime": "2026-09-14T06:57:59.108Z",
-    "notified": true
+    "departureTime": "2026-09-15T15:09:38.707Z",
+    "arrivalTime": "2026-09-16T11:36:38.707Z",
+    "notified": false
   },
   {
     "shipId": 3,
     "routeId": "DeepSea_MROJZ",
-    "departureTime": "2026-09-14T05:21:01.351Z",
-    "arrivalTime": "2026-09-15T15:04:01.351Z",
-    "notified": true
+    "departureTime": "2026-09-15T15:15:54.494Z",
+    "arrivalTime": "2026-09-17T00:58:54.494Z",
+    "notified": false
   },
   {
     "shipId": 8,
     "routeId": "DeepSea_MROJZ",
-    "departureTime": "2026-09-14T05:21:09.741Z",
-    "arrivalTime": "2026-09-15T15:04:09.741Z",
-    "notified": true
+    "departureTime": "2026-09-15T15:15:55.085Z",
+    "arrivalTime": "2026-09-17T00:58:55.085Z",
+    "notified": false
   },
   {
     "shipId": 9,
     "routeId": "DeepSea_MROJZ",
-    "departureTime": "2026-09-14T05:21:20.181Z",
-    "arrivalTime": "2026-09-15T15:04:20.181Z",
-    "notified": true
+    "departureTime": "2026-09-15T15:15:55.770Z",
+    "arrivalTime": "2026-09-17T00:58:55.770Z",
+    "notified": false
   },
   {
     "shipId": 7,
