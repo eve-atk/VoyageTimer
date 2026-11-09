@@ -5,7 +5,7 @@
     "name": "1号艦",
     "rank": 145,
     "parts": {
-      "hull": "hull_syldra_mod",
+      "hull": "hull_whale_mod",
       "stern": "stern_shark_mod",
       "bow": "bow_unkiu_mod",
       "bridge": "bridge_coelacanth_mod"
